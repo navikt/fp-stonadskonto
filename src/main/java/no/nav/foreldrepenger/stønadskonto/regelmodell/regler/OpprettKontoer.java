@@ -41,18 +41,7 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
         for (var kontokonfigurasjon : kontokonfigurasjoner) {
             if (kontokonfigurasjon.stønadskontotype() != StønadskontoBeregningStønadskontotype.FLERBARNSDAGER) {
                 var antallDager = Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getFamiliehendelsesdato());
-                if (antallExtraBarnDager > 0) {
-                    // Legg ekstra dager til foreldrepenger eller fellesperiode.
-                    if ((kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FORELDREPENGER))) {
-                        antallDager += antallExtraBarnDager;
-                        if (kunFarRettIkkeAleneomsorgFlerbarnsdager(grunnlag) && !grunnlag.isMinsterett()) {
-                            kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
-                        }
-                    } else if (kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FELLESPERIODE)) {
-                        antallDager += antallExtraBarnDager;
-                        kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
-                    }
-                }
+                antallDager += getFlerbarnsdager(grunnlag, kontoerMap, antallExtraBarnDager, kontokonfigurasjon);
                 if (kontotypeSomKanHaEkstraFlerbarnsdager(kontokonfigurasjon) && skalLeggeTilPrematurUker(grunnlag)) {
                     antallPrematurDager = antallVirkedagerFomFødselTilTermin(grunnlag);
                     antallDager += antallPrematurDager;
@@ -61,6 +50,27 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
             }
         }
         return beregnetMedResultat(kontoerMap, antallExtraBarnDager, antallPrematurDager);
+    }
+
+    private int getFlerbarnsdager(BeregnKontoerGrunnlag grunnlag,
+                                      Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap,
+                                      int antallExtraBarnDager,
+                                      Kontokonfigurasjon kontokonfigurasjon) {
+        if (antallExtraBarnDager == 0) {
+            return 0;
+        }
+        // Legg ekstra dager til foreldrepenger eller fellesperiode.
+        if ((kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FORELDREPENGER))) {
+            if (kunFarRettIkkeAleneomsorgFlerbarnsdager(grunnlag) && !grunnlag.isMinsterett()) {
+                kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
+            }
+            return antallExtraBarnDager;
+        } else if (kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FELLESPERIODE)) {
+            kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
+            return antallExtraBarnDager;
+        } else {
+            return 0;
+        }
     }
 
     private boolean kontotypeSomKanHaEkstraFlerbarnsdager(Kontokonfigurasjon kontokonfigurasjon) {

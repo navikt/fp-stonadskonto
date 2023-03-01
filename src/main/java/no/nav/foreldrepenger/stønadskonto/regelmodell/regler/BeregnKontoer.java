@@ -39,35 +39,35 @@ public class BeregnKontoer implements RuleService<BeregnKontoerGrunnlag> {
 
         return rs.hvisRegel(SjekkOmMorHarAleneomsorg.ID, "Sjekk om mor har aleneomsorg?")
                 .hvis(new SjekkOmMorHarAleneomsorg(),
-                        opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder().berettiget(Konfigurasjonsfaktorer.Berettiget.MOR)))
+                        opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder(Konfigurasjonsfaktorer.Berettiget.MOR)))
                 .ellers(sjekkFarAleneomsorgNode(rs));
     }
 
     private Specification<BeregnKontoerGrunnlag> sjekkKunFarRettNode(Ruleset<BeregnKontoerGrunnlag> rs) {
         return rs.hvisRegel(SjekkOmBareFarHarRett.ID, "Sjekk om kun far har rett til foreldrepenger?")
-                .hvis(new SjekkOmBareFarHarRett(), opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder().berettiget(
-                        Konfigurasjonsfaktorer.Berettiget.FAR))/*opprettKontoerForBareFarHarRettTilForeldrepenger(rs)*/)
+                .hvis(new SjekkOmBareFarHarRett(),
+                    opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder(Konfigurasjonsfaktorer.Berettiget.FAR)))
                 .ellers(new OpprettKontoer(List.of()));
     }
 
     private Specification<BeregnKontoerGrunnlag> sjekkKunMorRettNode(Ruleset<BeregnKontoerGrunnlag> rs) {
         return rs.hvisRegel(SjekkOmBareMorHarRett.ID, "Sjekk om kun mor har rett til foreldrepenger?")
                 .hvis(new SjekkOmBareMorHarRett(),
-                        opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder().berettiget(Konfigurasjonsfaktorer.Berettiget.MOR)))
+                        opprettKontoer(rs, new Konfigurasjonsfaktorer.Builder(Konfigurasjonsfaktorer.Berettiget.MOR)))
                 .ellers(sjekkKunFarRettNode(rs));
     }
 
     private Specification<BeregnKontoerGrunnlag> sjekkBeggeRettNode(Ruleset<BeregnKontoerGrunnlag> rs) {
         return rs.hvisRegel(SjekkOmBådeMorOgFarHarRett.ID, "Sjekk om begge har opptjent rett til foreldrepenger?")
                 .hvis(new SjekkOmBådeMorOgFarHarRett(), opprettKontoer(rs,
-                        new Konfigurasjonsfaktorer.Builder().berettiget(Konfigurasjonsfaktorer.Berettiget.BEGGE)))
+                        new Konfigurasjonsfaktorer.Builder(Konfigurasjonsfaktorer.Berettiget.BEGGE)))
                 .ellers(sjekkKunMorRettNode(rs));
     }
 
     private Specification<BeregnKontoerGrunnlag> sjekkFarAleneomsorgNode(Ruleset<BeregnKontoerGrunnlag> rs) {
         return rs.hvisRegel(SjekkOmFarHarAleneomsorg.ID, "Sjekk om far har aleneomsorg?")
                 .hvis(new SjekkOmFarHarAleneomsorg(), opprettKontoer(rs,
-                        new Konfigurasjonsfaktorer.Builder().berettiget(Konfigurasjonsfaktorer.Berettiget.FAR_ALENE)))
+                        new Konfigurasjonsfaktorer.Builder(Konfigurasjonsfaktorer.Berettiget.FAR_ALENE)))
                 .ellers(sjekkBeggeRettNode(rs));
     }
 
