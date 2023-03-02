@@ -35,9 +35,11 @@ class KonfigurasjonBuilderTest {
     @Test
     void konfigurasjon_med_en_verdi_i_to_intervaller_med_overlapp() {
         var nå = LocalDate.now();
-        assertThrows(IllegalArgumentException.class, () -> KonfigurasjonBuilder.create()
-                .leggTilParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_100, nå, nå.plusDays(6), 50)
-                .leggTilParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_100, nå.plusDays(5), null, 75));
+        var nåPLuss5 = nå.plusDays(5);
+        var initKonfigBuilder = KonfigurasjonBuilder.create()
+            .leggTilParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_100, nå, nå.plusDays(6), 50);
+        assertThrows(IllegalArgumentException.class, () -> initKonfigBuilder
+                .leggTilParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_100, nåPLuss5, null, 75));
     }
 
 }

@@ -33,7 +33,8 @@ public class Konfigurasjonsfaktorer {
     private Boolean erFødsel;
     private Berettiget berettiget;
 
-    public Konfigurasjonsfaktorer() {
+    public Konfigurasjonsfaktorer(Berettiget berettiget) {
+        this.berettiget = berettiget;
     }
 
     public Integer getAntallLevendeBarn() {
@@ -51,8 +52,8 @@ public class Konfigurasjonsfaktorer {
     public static class Builder {
         private final Konfigurasjonsfaktorer kladd;
 
-        public Builder() {
-            this.kladd = new Konfigurasjonsfaktorer();
+        public Builder(Berettiget berettiget) {
+            this.kladd = new Konfigurasjonsfaktorer(berettiget);
 
         }
 
@@ -63,11 +64,6 @@ public class Konfigurasjonsfaktorer {
 
         public Konfigurasjonsfaktorer.Builder erFødsel(Boolean erFødsel) {
             this.kladd.erFødsel = erFødsel;
-            return this;
-        }
-
-        public Konfigurasjonsfaktorer.Builder berettiget(Berettiget berettiget) {
-            this.kladd.berettiget = berettiget;
             return this;
         }
 

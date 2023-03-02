@@ -21,9 +21,9 @@ class StandardKonfigurasjonTest {
 
     @Test
     void hent_parameter_utenfor_periode_skal_gi_exception() {
+        var fortidlig = LocalDate.of(1970, 12, 5);
         assertThrows(IllegalArgumentException.class,
-                () -> Konfigurasjon.STANDARD.getParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_80,
-                        LocalDate.of(1970, 12, 5)));
+                () -> Konfigurasjon.STANDARD.getParameter(Parametertype.FEDREKVOTE_DAGER, Dekningsgrad.DEKNINGSGRAD_80, fortidlig));
     }
 
 }
