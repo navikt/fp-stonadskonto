@@ -95,7 +95,7 @@ public class BeregnKontoer implements RuleService<BeregnKontoerGrunnlag> {
         var konfigurasjoner = byggKonfigurasjonFelles(faktorer);
 
         // Uavhengig av dekningsgrad
-        if (faktorer.erFødsel()) {
+        if (faktorer.erFødsel()) { //NOSONAR
             konfigurasjoner.add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FORELDREPENGER_FØR_FØDSEL, Parametertype.FORELDREPENGER_FØR_FØDSEL));
         }
 
