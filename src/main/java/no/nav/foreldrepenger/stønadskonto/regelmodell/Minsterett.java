@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ public enum Minsterett {
     public static Map<Minsterett, Integer> finnMinsterett(BeregnMinsterettGrunnlag grunnlag) {
 
         var fhDato = grunnlag.getFamilieHendelseDato();
-        var retter = new HashMap<Minsterett, Integer>();
+        var retter = new EnumMap<Minsterett, Integer>(Minsterett.class);
         var minsterett = grunnlag.isMinsterett();
         var morHarUføretrygd = grunnlag.isMorHarUføretrygd();
         var bareFarHarRett = grunnlag.isBareFarHarRett();
