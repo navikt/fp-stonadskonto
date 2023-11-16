@@ -12,7 +12,7 @@ Regler for utledning av stønadskonti og minsteretter for foreldrepenger.
 
 # Komme i gang
 
-Bygges med maven, java 17
+Bygges med maven, java 21
 
 ## For NAV-ansatte
 
