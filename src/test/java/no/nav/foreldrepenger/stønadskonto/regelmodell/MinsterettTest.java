@@ -163,4 +163,18 @@ class MinsterettTest {
         assertThat(finnMinsterett(grunnlag)).containsKey(FAR_UTTAK_RUNDT_FØDSEL);
     }
 
+    @Test
+    void begge_rett_adopsjon_gir_ikke_dager_rundt_fødsel() {
+        var grunnlag = new BeregnMinsterettGrunnlag.Builder()
+            .minsterett(true)
+            .mor(false)
+            .familieHendelseDato(LocalDate.now())
+            .gjelderFødsel(false)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .bareFarHarRett(false)
+            .aleneomsorg(false)
+            .build();
+        assertThat(finnMinsterett(grunnlag)).doesNotContainKey(FAR_UTTAK_RUNDT_FØDSEL);
+    }
+
 }
