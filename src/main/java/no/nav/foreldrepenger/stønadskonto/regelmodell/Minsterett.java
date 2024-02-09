@@ -30,7 +30,7 @@ public enum Minsterett {
         sjekkToTette(grunnlag).
             ifPresent(tt -> retter.put(TETTE_FØDSLER, tt))
         ;
-        if (minsterett) {
+        if (minsterett && grunnlag.isGjelderFødsel()) {
             // Settes for begge parter. Brukes ifm berørt for begge og fakta uttak for far.
             retter.put(Minsterett.FAR_UTTAK_RUNDT_FØDSEL, Konfigurasjon.STANDARD.getParameter(Parametertype.FAR_DAGER_RUNDT_FØDSEL, null, fhDato));
         }
