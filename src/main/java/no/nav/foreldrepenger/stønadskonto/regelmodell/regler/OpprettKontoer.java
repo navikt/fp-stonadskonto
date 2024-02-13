@@ -40,7 +40,7 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
         // Opprette alle kontoer utenom samtidig uttak
         for (var kontokonfigurasjon : kontokonfigurasjoner) {
             if (kontokonfigurasjon.stønadskontotype() != StønadskontoBeregningStønadskontotype.FLERBARNSDAGER) {
-                var antallDager = Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getFamiliehendelsesdato());
+                var antallDager = Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
                 antallDager += getFlerbarnsdager(grunnlag, kontoerMap, antallExtraBarnDager, kontokonfigurasjon);
                 if (kontotypeSomKanHaEkstraFlerbarnsdager(kontokonfigurasjon) && skalLeggeTilPrematurUker(grunnlag)) {
                     antallPrematurDager = antallVirkedagerFomFødselTilTermin(grunnlag);
@@ -81,7 +81,7 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
     private int finnEkstraFlerbarnsdager(BeregnKontoerGrunnlag grunnlag) {
         for (var kontokonfigurasjon : kontokonfigurasjoner) {
             if (kontokonfigurasjon.stønadskontotype() == StønadskontoBeregningStønadskontotype.FLERBARNSDAGER) {
-                return Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getFamiliehendelsesdato());
+                return Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
             }
         }
         return 0;

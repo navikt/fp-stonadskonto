@@ -1,8 +1,21 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class BeregnMinsterettGrunnlag {
+
+    /*
+     * Normalt velges konti ut fra fødselsdato/termindato/omsorgsdato.
+     * Normalt vil endringer tre i kraft "for nye tilfelle" - som enten går på familiehendelsedato eller på første uttaksdato.
+     * For regler som gjelder begge foreldrene brukes gjerne familiehendelsesdato. Andre regler som er mer individuelt orientert ser gjerne på uttaksdato
+     *
+     * For tilfelle terminbasert søknad så vil man på søknadstidspunktet ikke nødvendigvis vite om fødselsdato tilsier annet regelverk enn termin.
+     * Dessuten trer nye regler først i kraft når dagens dato har passert ikraftredelsesdato for endrete regler - må innvilges på gamle regler inntil nye trer i kraft
+     *
+     * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
+     */
+    private LocalDate regelvalgsdato;
 
     private boolean minsterett;
     private boolean morHarUføretrygd;
@@ -56,6 +69,14 @@ public class BeregnMinsterettGrunnlag {
 
     public LocalDate getFamilieHendelseDatoNesteSak() {
         return familieHendelseDatoNesteSak;
+    }
+
+    public Optional<LocalDate> getRegelvalgsdato() {
+        return Optional.ofNullable(regelvalgsdato);
+    }
+
+    public LocalDate getKonfigurasjonsvalgdato() {
+        return getRegelvalgsdato().orElseGet(this::getFamilieHendelseDato);
     }
 
     public static class Builder {

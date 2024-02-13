@@ -8,6 +8,18 @@ import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 @RuleDocumentationGrunnlag
 public class BeregnKontoerGrunnlag {
 
+    /*
+     * Normalt velges konti ut fra fødselsdato/termindato/omsorgsdato.
+     * Normalt vil endringer tre i kraft "for nye tilfelle" - som enten går på familiehendelsedato eller på første uttaksdato.
+     * For regler som gjelder begge foreldrene brukes gjerne familiehendelsesdato. Andre regler som er mer individuelt orientert ser gjerne på uttaksdato
+     *
+     * For tilfelle terminbasert søknad så vil man på søknadstidspunktet ikke nødvendigvis vite om fødselsdato tilsier annet regelverk enn termin.
+     * Dessuten trer nye regler først i kraft når dagens dato har passert ikraftredelsesdato for endrete regler - må innvilges på gamle regler inntil nye trer i kraft
+     *
+     * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
+     */
+    private LocalDate regelvalgsdato;
+
     private int antallBarn;
     private boolean morRett;
     private boolean farRett;
@@ -72,6 +84,14 @@ public class BeregnKontoerGrunnlag {
         var fd = getFødselsdato();
         var td = getTermindato().orElse(null);
         return fd.orElse(td);
+    }
+
+    public Optional<LocalDate> getRegelvalgsdato() {
+        return Optional.ofNullable(regelvalgsdato);
+    }
+
+    public LocalDate getKonfigurasjonsvalgdato() {
+        return getRegelvalgsdato().orElseGet(this::getFamiliehendelsesdato);
     }
 
     public static Builder builder() {
