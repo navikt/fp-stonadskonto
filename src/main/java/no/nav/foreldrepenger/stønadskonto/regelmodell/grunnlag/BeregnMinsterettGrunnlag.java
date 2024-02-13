@@ -83,6 +83,11 @@ public class BeregnMinsterettGrunnlag {
 
         private BeregnMinsterettGrunnlag grunnlag = new BeregnMinsterettGrunnlag();
 
+        public Builder regelvalgsdato(LocalDate regelvalgsdato) {
+            grunnlag.regelvalgsdato = regelvalgsdato;
+            return this;
+        }
+
         public Builder minsterett(boolean minsterett) {
             grunnlag.minsterett =  minsterett;
             return this;

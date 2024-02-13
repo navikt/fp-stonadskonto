@@ -101,6 +101,11 @@ public class BeregnKontoerGrunnlag {
     public static class Builder {
         private final BeregnKontoerGrunnlag kladd = new BeregnKontoerGrunnlag();
 
+        public Builder regelvalgsdato(LocalDate regelvalgsdato) {
+            kladd.regelvalgsdato = regelvalgsdato;
+            return this;
+        }
+
         public Builder antallBarn(int antallBarn) {
             kladd.antallBarn = antallBarn;
             return this;
