@@ -20,11 +20,11 @@ public class KonfigurasjonBuilder {
         return new KonfigurasjonBuilder();
     }
 
-    public KonfigurasjonBuilder leggTilParameter(Parametertype parametertype, LocalDate fom, LocalDate tom, Integer verdi) {
+    public KonfigurasjonBuilder leggTilParameter(Parametertype parametertype, LocalDate fom, LocalDate tom, int verdi) {
         return leggTilParameter(parametertype, null, fom, tom, verdi);
     }
 
-    public KonfigurasjonBuilder leggTilParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, Integer verdi) {
+    public KonfigurasjonBuilder leggTilParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, int verdi) {
         var nyParameter = new Parameter(dekningsgrad, fom, tom, verdi);
         var parameterListe = parameterMap.get(parametertype);
         if (parameterListe == null) {

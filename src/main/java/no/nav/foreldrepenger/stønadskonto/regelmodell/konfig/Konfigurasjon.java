@@ -97,7 +97,7 @@ public class Konfigurasjon {
         this.parameterMap.putAll(parameterMap);
     }
 
-    public Integer getParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, final LocalDate dato) {
+    public int getParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, final LocalDate dato) {
         return getParameterVerdier(parametertype).stream()
             .filter(p -> p.overlapper(dekningsgrad, dato))
             .findFirst()

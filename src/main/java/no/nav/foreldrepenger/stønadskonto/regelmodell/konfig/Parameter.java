@@ -5,9 +5,9 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 
-public record Parameter(Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, Integer verdi) {
+public record Parameter(Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, int verdi) {
 
-    public Parameter(Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, Integer verdi) {
+    public Parameter(Dekningsgrad dekningsgrad, LocalDate fom, LocalDate tom, int verdi) {
         if (fom != null && tom != null && tom.isBefore(fom)) {
             throw new IllegalArgumentException("Til og med dato før fra og med dato: " + fom + ">" + tom);
         }
