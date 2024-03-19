@@ -85,6 +85,7 @@ public class Konfigurasjon {
         .leggTilParameter(FAR_TETTE_SAKER_DAGER_MINSTERETT, DATO_MINSTERETT_1, null, 40)
 
         // Grenser
+        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DATO_MINSTERETT_1.minusDays(1), -1) // "Umulig periode" før innføring
         .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_MINSTERETT_1, null, 48)
         .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_PREMATUR, null, 52)
         .build();

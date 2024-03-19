@@ -151,6 +151,20 @@ class MinsterettTest {
     }
 
     @Test
+    void før_totette_gir_ikke_dager() {
+        var datoFørTetteFødlser = LocalDate.of(2022,1,1);
+        var grunnlag = new BeregnMinsterettGrunnlag.Builder()
+            .minsterett(false)
+            .mor(true)
+            .familieHendelseDato(datoFørTetteFødlser)
+            //Barna ikke tett nok til minsteretten
+            .familieHendelseDatoNesteSak(datoFørTetteFødlser.plusWeeks(45))
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+        assertThat(finnMinsterett(grunnlag)).containsEntry(TETTE_FØDSLER, 0);
+    }
+
+    @Test
     void bfhr_mor_rett_i_eøs_skal_ikke_få_generell_minsterett() {
         var grunnlag = new BeregnMinsterettGrunnlag.Builder()
             .minsterett(true)

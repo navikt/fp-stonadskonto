@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.stønadskonto.regelmodell;
+package no.nav.foreldrepenger.stønadskonto.grensesnitt;
 
 import java.time.LocalDate;
 import java.util.Optional;
