@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,8 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.PrematurukerUtil;
 class StønadskontoRegelOrkestreringTest {
 
     private static final LocalDate DATO = LocalDate.now();
+    private static final LocalDate FØR_WLB = LocalDate.of(2022, Month.JULY, 1);
+
     private final StønadskontoRegelOrkestrering stønadskontoRegelOrkestrering = new StønadskontoRegelOrkestrering();
 
 
@@ -918,19 +921,35 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(FØR_WLB)
             .antallBarn(3)
             .farRett(true)
             .morRett(false)
             .farAleneomsorg(false)
             .morAleneomsorg(false)
-            .minsterett(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75).containsEntry(FLERBARNSDAGER, 230);
+    }
+
+    @Test
+    void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .termindato(DATO)
+            .antallBarn(3)
+            .farRett(true)
+            .morRett(false)
+            .farAleneomsorg(false)
+            .morAleneomsorg(false)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75);
     }
 
     /*
@@ -942,19 +961,35 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(FØR_WLB)
             .antallBarn(3)
             .farRett(true)
             .morRett(false)
             .farAleneomsorg(false)
             .morAleneomsorg(false)
-            .minsterett(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75).containsEntry(FLERBARNSDAGER, 280);
+    }
+
+    @Test
+    void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .fødselsdato(DATO)
+            .antallBarn(3)
+            .farRett(true)
+            .morRett(false)
+            .farAleneomsorg(false)
+            .morAleneomsorg(false)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75);
     }
 
     /*
@@ -965,19 +1000,35 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(FØR_WLB)
             .antallBarn(2)
             .farRett(true)
             .morRett(false)
             .farAleneomsorg(false)
             .morAleneomsorg(false)
-            .minsterett(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75).containsEntry(FLERBARNSDAGER, 85);
+    }
+
+    @Test
+    void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .fødselsdato(DATO)
+            .antallBarn(2)
+            .farRett(true)
+            .morRett(false)
+            .farAleneomsorg(false)
+            .morAleneomsorg(false)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75);
     }
 
     /*
@@ -989,19 +1040,35 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(FØR_WLB)
             .antallBarn(2)
             .farRett(true)
             .morRett(false)
             .farAleneomsorg(false)
             .morAleneomsorg(false)
-            .minsterett(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75).containsEntry(FLERBARNSDAGER, 105);
+    }
+
+    @Test
+    void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .fødselsdato(DATO)
+            .antallBarn(2)
+            .farRett(true)
+            .morRett(false)
+            .farAleneomsorg(false)
+            .morAleneomsorg(false)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75);
     }
 
     /*
@@ -1063,20 +1130,20 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void bfhr_flere_barn_ikke_minsterett_skal_gi_flerbarnsdager() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(FØR_WLB)
             .antallBarn(2)
             .farRett(true)
             .morRett(false)
             .farAleneomsorg(false)
             .morAleneomsorg(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .minsterett(false)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).containsKey(FLERBARNSDAGER);
     }
+
 
     @Test
     void bfhr_flere_barn_minsterett_skal_ikke_gi_flerbarnsdager() {
@@ -1088,7 +1155,6 @@ class StønadskontoRegelOrkestreringTest {
             .farAleneomsorg(false)
             .morAleneomsorg(false)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .minsterett(true)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);

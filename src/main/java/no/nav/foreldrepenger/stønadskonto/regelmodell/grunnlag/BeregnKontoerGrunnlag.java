@@ -32,7 +32,6 @@ public class BeregnKontoerGrunnlag {
     private LocalDate termindato;
     //adopsjon
     private LocalDate omsorgsovertakelseDato;
-    private boolean minsterett = true;
 
     private BeregnKontoerGrunnlag() {
     }
@@ -65,10 +64,6 @@ public class BeregnKontoerGrunnlag {
         return fødselsdato != null || termindato != null;
     }
 
-    public boolean isMinsterett() {
-        return minsterett;
-    }
-
     public Optional<LocalDate> getFødselsdato() {
         return Optional.ofNullable(fødselsdato);
     }
@@ -86,7 +81,7 @@ public class BeregnKontoerGrunnlag {
         return fd.orElse(td);
     }
 
-    public Optional<LocalDate> getRegelvalgsdato() {
+    private Optional<LocalDate> getRegelvalgsdato() {
         return Optional.ofNullable(regelvalgsdato);
     }
 
@@ -158,11 +153,6 @@ public class BeregnKontoerGrunnlag {
 
         public Builder omsorgsovertakelseDato(LocalDate dato) {
             kladd.omsorgsovertakelseDato = dato;
-            return this;
-        }
-
-        public Builder minsterett(boolean minsterett) {
-            kladd.minsterett = minsterett;
             return this;
         }
 

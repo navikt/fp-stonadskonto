@@ -38,11 +38,12 @@ public class Konfigurasjon {
     private static final LocalDate DATO_VEDTAK = LocalDate.of(2019, JANUARY, 1);
     private static final LocalDate DATO_PREMATUR = LocalDate.of(2019, JULY, 1);
     private static final LocalDate DATO_MINSTERETT_1 = LocalDate.of(2022, AUGUST, 2);
+    private static final LocalDate DAG_FØR_MINSTERETT_1 = DATO_MINSTERETT_1.minusDays(1);
 
 
     public static final Konfigurasjon STANDARD = KonfigurasjonBuilder.create()
         /*
-         * Stønadskontoer
+         * Stønadskontoer - alle parametre skal ha en sammenhengende tidslinje fra DATO_TIDLIGST med 0/dummy før ikrafttredelse
          * - Endring av kvoter/80% fom 1/1-2019
          * - Prematuruker 1/7-2019
          * - FAB 2/8-2022
@@ -53,11 +54,12 @@ public class Konfigurasjon {
         .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 80)
 
         .leggTilParameter(MØDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 95)
-        .leggTilParameter(FEDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 95)
-        .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 90)
-
         .leggTilParameter(MØDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 75)
+
+        .leggTilParameter(FEDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 95)
         .leggTilParameter(FEDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 75)
+
+        .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 90)
         .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 130)
 
         .leggTilParameter(FORELDREPENGER_MOR_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
@@ -69,28 +71,42 @@ public class Konfigurasjon {
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 15)
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 15)
 
-        // Ekstradager og Minsteretter
+        // Utvidelse og dager uten aktivitetskrav flerbarn
         .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 85)
         .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 105)
         .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
         .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
-        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 75)
-        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 95)
+
+        // Rettigheter 14-14 bare far rett - minsterett eller dager uten aktivitetskrav
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_100, DATO_MINSTERETT_1, null, 0)
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_80, DATO_MINSTERETT_1, null, 0)
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_100, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 75)
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 95)
         .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_MINSTERETT_1, null, 40)
+        .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_100, DATO_MINSTERETT_1, null, 75)
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_100, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_80, DATO_MINSTERETT_1, null, 95)
+        .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
+
+        // Rettigheter fars uttak rundt fødsel
         .leggTilParameter(FAR_DAGER_RUNDT_FØDSEL, DATO_MINSTERETT_1, null, 10)
+        .leggTilParameter(FAR_DAGER_RUNDT_FØDSEL, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
+
+        // Minsterett tette fødsler
         .leggTilParameter(MOR_TETTE_SAKER_DAGER_FØDSEL, DATO_MINSTERETT_1, null, 110)
+        .leggTilParameter(MOR_TETTE_SAKER_DAGER_FØDSEL, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(MOR_TETTE_SAKER_DAGER_ADOPSJON, DATO_MINSTERETT_1, null, 40)
+        .leggTilParameter(MOR_TETTE_SAKER_DAGER_ADOPSJON, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(FAR_TETTE_SAKER_DAGER_MINSTERETT, DATO_MINSTERETT_1, null, 40)
+        .leggTilParameter(FAR_TETTE_SAKER_DAGER_MINSTERETT, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
 
         // Grenser
-        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DATO_MINSTERETT_1.minusDays(1), -1) // "Umulig periode" før innføring
         .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_MINSTERETT_1, null, 48)
+        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, -1) // "Umulig periode" før innføring
         .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_PREMATUR, null, 52)
+        .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_TIDLIGST, DATO_PREMATUR.minusDays(1), -1) // "Umulig periode" før innføring
         .build();
-
-    public static final LocalDate PREMATURUKER_REGELENDRING_START_DATO = DATO_PREMATUR;
 
     private final Map<Parametertype, Collection<Parameter>> parameterMap = new EnumMap<>(Parametertype.class);
 
@@ -107,7 +123,7 @@ public class Konfigurasjon {
                 "Ingen parameter funnet for " + parametertype.name() + " med dekningsgrad " + (dekningsgrad != null ? dekningsgrad : "") + " på dato " + dato));
     }
 
-    private Collection<Parameter> getParameterVerdier(Parametertype parametertype) {
+    Collection<Parameter> getParameterVerdier(Parametertype parametertype) {
         return Optional.ofNullable(this.parameterMap.get(parametertype))
             .orElseThrow(() -> new IllegalArgumentException("Konfigurasjon-feil/Utvikler-feil: mangler parameter av type " + parametertype));
     }
