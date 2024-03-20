@@ -16,10 +16,7 @@ public class BeregnMinsterettGrunnlag {
      * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
      */
     private LocalDate regelvalgsdato;
-
-    private boolean minsterett;
     private boolean morHarUføretrygd;
-    private boolean mor;
     private boolean bareFarHarRett;
     private boolean aleneomsorg;
     private boolean gjelderFødsel = true;
@@ -31,16 +28,8 @@ public class BeregnMinsterettGrunnlag {
     private BeregnMinsterettGrunnlag() {
     }
 
-    public boolean isMinsterett() {
-        return minsterett;
-    }
-
     public boolean isMorHarUføretrygd() {
         return morHarUføretrygd;
-    }
-
-    public boolean isMor() {
-        return mor;
     }
 
     public boolean isBareFarHarRett() {
@@ -71,7 +60,7 @@ public class BeregnMinsterettGrunnlag {
         return familieHendelseDatoNesteSak;
     }
 
-    public Optional<LocalDate> getRegelvalgsdato() {
+    private Optional<LocalDate> getRegelvalgsdato() {
         return Optional.ofNullable(regelvalgsdato);
     }
 
@@ -88,18 +77,8 @@ public class BeregnMinsterettGrunnlag {
             return this;
         }
 
-        public Builder minsterett(boolean minsterett) {
-            grunnlag.minsterett =  minsterett;
-            return this;
-        }
-
         public Builder morHarUføretrygd(boolean morHarUføretrygd) {
             grunnlag.morHarUføretrygd =  morHarUføretrygd;
-            return this;
-        }
-
-        public Builder mor(boolean mor) {
-            grunnlag.mor =  mor;
             return this;
         }
 

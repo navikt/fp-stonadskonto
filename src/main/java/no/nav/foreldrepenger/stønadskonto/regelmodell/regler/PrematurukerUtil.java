@@ -24,8 +24,8 @@ public final class PrematurukerUtil {
         if (fødselsdato == null || termindato == null) {
             return false;
         }
-        if (erEtterRegelendringStartdato(fødselsdato)) {
-            var antallDagerFørTermin = Konfigurasjon.STANDARD.getParameter(Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, null, fødselsdato);
+        var antallDagerFørTermin = Konfigurasjon.STANDARD.getParameter(Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, null, fødselsdato);
+        if (antallDagerFørTermin > 0) {
             return fødselsdato.plusDays(antallDagerFørTermin).isBefore(termindato);
         }
         return false;
@@ -53,9 +53,5 @@ public final class PrematurukerUtil {
         } catch (ArithmeticException e) {
             throw new UnsupportedOperationException("Perioden er for lang til å beregne virkedager.", e);
         }
-    }
-
-    private static boolean erEtterRegelendringStartdato(LocalDate fødselsdato) {
-        return !fødselsdato.isBefore(Konfigurasjon.PREMATURUKER_REGELENDRING_START_DATO);
     }
 }

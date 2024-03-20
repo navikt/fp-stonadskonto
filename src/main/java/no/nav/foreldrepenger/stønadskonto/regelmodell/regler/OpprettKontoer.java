@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +63,7 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
         }
         // Legg ekstra dager til foreldrepenger eller fellesperiode - kun for tilfelle med aktivitetskrav (og ikke minsterett)
         if ((kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FORELDREPENGER))) {
-            if (kunFarRettIkkeAleneomsorgFlerbarnsdager(grunnlag) && !grunnlag.isMinsterett()) {
+            if (kunFarRettIkkeAleneomsorgFlerbarnsdagerUtenAktivitetskrav(grunnlag)) {
                 kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
             }
             return antallExtraBarnDager;
@@ -103,8 +105,9 @@ class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
         return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato.orElse(null), termindato.orElse(null));
     }
 
-    private boolean kunFarRettIkkeAleneomsorgFlerbarnsdager(BeregnKontoerGrunnlag grunnlag) {
-        return grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg() && grunnlag.getAntallBarn() > 0;
+    private boolean kunFarRettIkkeAleneomsorgFlerbarnsdagerUtenAktivitetskrav(BeregnKontoerGrunnlag grunnlag) {
+        return grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg() && grunnlag.getAntallBarn() > 0 &&
+             Konfigurasjon.STANDARD.getParameter(BARE_FAR_RETT_DAGER_MINSTERETT, null, grunnlag.getKonfigurasjonsvalgdato()) <= 0;
     }
 
     private Evaluation beregnetMedResultat(Map<StønadskontoBeregningStønadskontotype, Integer> kontoer,

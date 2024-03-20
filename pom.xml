@@ -45,6 +45,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fpsak.nare.version>2.6.1</fpsak.nare.version>
+        <fp-tidsserie.version>2.7.1</fp-tidsserie.version>
         <jupiter.version>5.10.2</jupiter.version>
         <assertj.version>3.25.3</assertj.version>
 
@@ -61,6 +62,12 @@
             <groupId>no.nav.fpsak.nare</groupId>
             <artifactId>fpsak-nare-core</artifactId>
             <version>${fpsak.nare.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.fpsak.tidsserie</groupId>
+            <artifactId>fpsak-tidsserie</artifactId>
+            <version>${fp-tidsserie.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
