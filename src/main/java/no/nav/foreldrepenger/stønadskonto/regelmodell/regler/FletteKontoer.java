@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
@@ -38,8 +37,7 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
          * - Dette vil dekke ulikhet i antall barn, prematurdager, etc. Men ved endret dekningsgrad bør det sendes inn tom tidligere beregning
          * - Øvrige retter: Bruk alltid siste utregning.
          */
-        var sammeStønadskonfig = sammeOppsettStønadsdager(opprinnelig.keySet(), beregnet.keySet());
-        BiFunction<Integer, Integer, Optional<Integer>> kontovelger = sammeStønadskonfig ? FletteKontoer::max : FletteKontoer::lhs;
+        var kontovelger = utledKontoVelger(opprinnelig, beregnet);
 
         Arrays.stream(StønadskontoBeregningStønadskontotype.values()).forEach(konto -> {
             Optional<Integer> verdi = switch (konto.getKontoKategori()) {
@@ -59,13 +57,22 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
         return ja();
     }
 
-    private static boolean sammeOppsettStønadsdager(Set<StønadskontoBeregningStønadskontotype> s1,
-                                                    Set<StønadskontoBeregningStønadskontotype> s2) {
-        var fellesperiodeBegge = s1.contains(StønadskontoBeregningStønadskontotype.FELLESPERIODE) &&
-            s2.contains(StønadskontoBeregningStønadskontotype.FELLESPERIODE);
-        var foreldrepengerBegge = s1.contains(StønadskontoBeregningStønadskontotype.FORELDREPENGER) &&
-            s2.contains(StønadskontoBeregningStønadskontotype.FORELDREPENGER);
-        return fellesperiodeBegge || foreldrepengerBegge;
+    private static BiFunction<Integer, Integer, Optional<Integer>>
+    utledKontoVelger(Map<StønadskontoBeregningStønadskontotype, Integer> m1,
+                             Map<StønadskontoBeregningStønadskontotype, Integer> m2) {
+        var fellesperiodeBegge = m1.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE) &&
+            m2.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE);
+        var foreldrepengerBegge = m1.containsKey(StønadskontoBeregningStønadskontotype.FORELDREPENGER) &&
+            m2.containsKey(StønadskontoBeregningStønadskontotype.FORELDREPENGER);
+        if (fellesperiodeBegge) {
+            return m1.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE) > m2.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE)
+                ? FletteKontoer::lhs : FletteKontoer::rhs;
+        } else if (foreldrepengerBegge) {
+            return m1.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER) > m2.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER)
+                ? FletteKontoer::lhs : FletteKontoer::rhs;
+        } else {
+            return FletteKontoer::lhs;
+        }
     }
 
     private static Optional<Integer> lhs(Integer lhs, Integer rhs) {
@@ -75,12 +82,5 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
     private static Optional<Integer> rhs(Integer lhs, Integer rhs) {
         return Optional.ofNullable(rhs);
     }
-
-    private static Optional<Integer> max(Integer lhs, Integer rhs) {
-        var lhs0 = Optional.ofNullable(lhs).orElse(0);
-        var rhs0 = Optional.ofNullable(rhs).orElse(0);
-        return Optional.of(Math.max(lhs0, rhs0)).filter(v -> v > 0);
-    }
-
 
 }
