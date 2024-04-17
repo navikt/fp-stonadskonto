@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(SjekkOmFødsel.ID)
-public class SjekkOmFødsel extends LeafSpecification<BeregnKontoerGrunnlag> {
+public class SjekkOmFødsel extends LeafSpecification<KontoerMellomregning> {
     public static final String ID = "FP_VK 17.1.10";
 
     public SjekkOmFødsel() {
@@ -14,8 +13,9 @@ public class SjekkOmFødsel extends LeafSpecification<BeregnKontoerGrunnlag> {
     }
 
     @Override
-    public Evaluation evaluate(BeregnKontoerGrunnlag grunnlag) {
-        if (grunnlag.erFødsel() && (grunnlag.isMorAleneomsorg() || grunnlag.isMorRett())) {
+    public Evaluation evaluate(KontoerMellomregning mellomregning) {
+        var grunnlag = mellomregning.getGrunnlag();
+        if (grunnlag.erFødsel()) {
             return ja();
         }
         return nei();

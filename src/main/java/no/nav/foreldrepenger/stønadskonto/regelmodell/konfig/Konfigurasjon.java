@@ -29,11 +29,14 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 
 public class Konfigurasjon {
 
+    private static final int INVALID = -1;
+    private final Predicate<Integer> VALID = e -> e > INVALID;
     private static final LocalDate DATO_TIDLIGST = LocalDate.of(2010, JANUARY, 1);
     private static final LocalDate DATO_VEDTAK = LocalDate.of(2019, JANUARY, 1);
     private static final LocalDate DATO_PREMATUR = LocalDate.of(2019, JULY, 1);
@@ -103,9 +106,9 @@ public class Konfigurasjon {
 
         // Grenser
         .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_MINSTERETT_1, null, 48)
-        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, -1) // "Umulig periode" før innføring
+        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, INVALID)
         .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_PREMATUR, null, 52)
-        .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_TIDLIGST, DATO_PREMATUR.minusDays(1), -1) // "Umulig periode" før innføring
+        .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_TIDLIGST, DATO_PREMATUR.minusDays(1), INVALID)
         .build();
 
     private final Map<Parametertype, Collection<Parameter>> parameterMap = new EnumMap<>(Parametertype.class);
@@ -114,9 +117,18 @@ public class Konfigurasjon {
         this.parameterMap.putAll(parameterMap);
     }
 
+    public Optional<Integer> getIntervallgrenseParameter(Parametertype parametertype, final LocalDate dato) {
+        return getParameterVerdier(parametertype).stream()
+            .filter(p -> p.overlapper(null, dato))
+            .filter(v -> VALID.test(v.verdi()))
+            .findFirst()
+            .map(Parameter::verdi);
+    }
+
     public int getParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, final LocalDate dato) {
         return getParameterVerdier(parametertype).stream()
-            .filter(p -> p.overlapper(dekningsgrad, dato))
+            .filter(p -> p.overlapper(dekningsgrad, dato) || p.overlapper(null, dato))
+            .filter(v -> VALID.test(v.verdi()))
             .findFirst()
             .map(Parameter::verdi)
             .orElseThrow(() -> new IllegalArgumentException(

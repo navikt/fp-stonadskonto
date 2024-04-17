@@ -24,11 +24,9 @@ public final class PrematurukerUtil {
         if (fødselsdato == null || termindato == null) {
             return false;
         }
-        var antallDagerFørTermin = Konfigurasjon.STANDARD.getParameter(Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, null, fødselsdato);
-        if (antallDagerFørTermin > 0) {
-            return fødselsdato.plusDays(antallDagerFørTermin).isBefore(termindato);
-        }
-        return false;
+        return Konfigurasjon.STANDARD.getIntervallgrenseParameter(Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, fødselsdato)
+            .filter(dager -> fødselsdato.plusDays(dager).isBefore(termindato))
+            .isPresent();
     }
 
     public static int beregnAntallVirkedager(LocalDate fom, LocalDate tom) {

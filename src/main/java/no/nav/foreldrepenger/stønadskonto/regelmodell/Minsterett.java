@@ -5,35 +5,31 @@ import java.time.Period;
 import java.util.EnumMap;
 import java.util.Map;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnMinsterettGrunnlag;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype;
 
-public enum Minsterett {
+/*
+ * TODO: Fjern etter vurdering av bruk ifm datamigrering
+ */
+public class Minsterett {
 
-    BARE_FAR_GENERELL_MINSTERETT,
-    FAR_UTTAK_RUNDT_FØDSEL,
-    TETTE_FØDSLER_MOR,
-    TETTE_FØDSLER_FAR,
-    BARE_FAR_UTEN_AKTIVITETSKRAV;
+    public static Map<StønadskontoBeregningStønadskontotype, Integer> finnMinsterett(BeregnKontoerGrunnlag grunnlag) {
 
+        var retter = new EnumMap<StønadskontoBeregningStønadskontotype, Integer>(StønadskontoBeregningStønadskontotype.class);
 
-    public static Map<Minsterett, Integer> finnMinsterett(BeregnMinsterettGrunnlag grunnlag) {
+        retter.put(StønadskontoBeregningStønadskontotype.TETTE_FØDSLER_MOR, finnToTetteMor(grunnlag));
+        retter.put(StønadskontoBeregningStønadskontotype.TETTE_FØDSLER_FAR, finnToTetteFar(grunnlag));
 
-        var retter = new EnumMap<Minsterett, Integer>(Minsterett.class);
+        retter.put(StønadskontoBeregningStønadskontotype.FAR_RUNDT_FØDSEL, finnFarRundtFødsel(grunnlag));
 
-        retter.put(Minsterett.TETTE_FØDSLER_MOR, finnToTetteMor(grunnlag));
-        retter.put(Minsterett.TETTE_FØDSLER_FAR, finnToTetteFar(grunnlag));
-
-        retter.put(Minsterett.FAR_UTTAK_RUNDT_FØDSEL, finnFarRundtFødsel(grunnlag));
-
-        retter.put(Minsterett.BARE_FAR_GENERELL_MINSTERETT, finnBareFarRettMinsterett(grunnlag));
-        retter.put(Minsterett.BARE_FAR_UTEN_AKTIVITETSKRAV, finnBareFarUtenAktivitetskrav(grunnlag));
+        retter.put(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, finnBareFarRettMinsterett(grunnlag));
+        retter.put(StønadskontoBeregningStønadskontotype.UFØREDAGER, finnBareFarUtenAktivitetskrav(grunnlag));
 
         return retter;
     }
 
-    private static int finnBareFarRettMinsterett(BeregnMinsterettGrunnlag grunnlag) {
+    private static int finnBareFarRettMinsterett(BeregnKontoerGrunnlag grunnlag) {
         var regeldato = grunnlag.getKonfigurasjonsvalgdato();
         var morHarUføretrygd = grunnlag.isMorHarUføretrygd();
         var antallDager = Konfigurasjon.STANDARD.getParameter(Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT, null, regeldato);
@@ -57,7 +53,7 @@ public enum Minsterett {
         return antallDager;
     }
 
-    private static int finnBareFarUtenAktivitetskrav(BeregnMinsterettGrunnlag grunnlag) {
+    private static int finnBareFarUtenAktivitetskrav(BeregnKontoerGrunnlag grunnlag) {
         if (grunnlag.isMorHarUføretrygd() && grunnlag.isBareFarHarRett() && !grunnlag.isAleneomsorg()) {
             return Konfigurasjon.STANDARD.getParameter(Parametertype.BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
         } else {
@@ -65,7 +61,7 @@ public enum Minsterett {
         }
     }
 
-    private static int finnFarRundtFødsel(BeregnMinsterettGrunnlag grunnlag) {
+    private static int finnFarRundtFødsel(BeregnKontoerGrunnlag grunnlag) {
         if (grunnlag.isGjelderFødsel()) {
             // Settes for begge parter. Brukes ifm berørt for begge og fakta uttak for far.
             return Konfigurasjon.STANDARD.getParameter(Parametertype.FAR_DAGER_RUNDT_FØDSEL, null, grunnlag.getKonfigurasjonsvalgdato());
@@ -74,7 +70,7 @@ public enum Minsterett {
         }
     }
 
-    private static int finnToTetteMor(BeregnMinsterettGrunnlag grunnlag) {
+    private static int finnToTetteMor(BeregnKontoerGrunnlag grunnlag) {
         var regeldato = grunnlag.getKonfigurasjonsvalgdato();
         var toTette = toTette(regeldato, grunnlag.getFamilieHendelseDato(), grunnlag.getFamilieHendelseDatoNesteSak());
         if (toTette) {
@@ -90,7 +86,7 @@ public enum Minsterett {
         }
     }
 
-    private static int finnToTetteFar(BeregnMinsterettGrunnlag grunnlag) {
+    private static int finnToTetteFar(BeregnKontoerGrunnlag grunnlag) {
         var regeldato = grunnlag.getKonfigurasjonsvalgdato();
         var toTette = toTette(regeldato, grunnlag.getFamilieHendelseDato(), grunnlag.getFamilieHendelseDatoNesteSak());
         if (toTette) {
@@ -101,11 +97,12 @@ public enum Minsterett {
     }
 
     private static boolean toTette(LocalDate regeldato, LocalDate familieHendelseDato, LocalDate familieHendelseDatoNesteSak) {
-        var toTetteGrense = Konfigurasjon.STANDARD.getParameter(Parametertype.TETTE_SAKER_MELLOMROM_UKER, null, regeldato);
-        if (toTetteGrense <= 0 || familieHendelseDatoNesteSak == null) {
+        if (familieHendelseDatoNesteSak == null) {
             return false;
         }
-        var grenseToTette = familieHendelseDato.plus(Period.ofWeeks(toTetteGrense)).plusDays(1);
-        return grenseToTette.isAfter(familieHendelseDatoNesteSak);
+        return Konfigurasjon.STANDARD.getIntervallgrenseParameter(Parametertype.TETTE_SAKER_MELLOMROM_UKER, regeldato)
+            .map(grenseToTette -> familieHendelseDato.plus(Period.ofWeeks(grenseToTette)).plusDays(1))
+            .filter(grenseToTette -> grenseToTette.isAfter(familieHendelseDatoNesteSak))
+            .isPresent();
     }
 }

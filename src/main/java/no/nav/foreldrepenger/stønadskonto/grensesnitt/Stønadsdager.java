@@ -11,9 +11,9 @@ public interface Stønadsdager {
     }
 
 
-    Integer ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato);
+    int ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato);
 
-    Integer ekstradagerFlerbarn(LocalDate familieHendelseDato, int antallBarn, Dekningsgrad dekningsgrad);
+    int ekstradagerFlerbarn(LocalDate familieHendelseDato, int antallBarn, Dekningsgrad dekningsgrad);
 
     //Integer minsterettdagerTetteFødsler(LocalDate familieHendelseDato, LocalDate familieHendelseDatoNesteSak, boolean minsterett, boolean mor, boolean gjelderFødsel);
 

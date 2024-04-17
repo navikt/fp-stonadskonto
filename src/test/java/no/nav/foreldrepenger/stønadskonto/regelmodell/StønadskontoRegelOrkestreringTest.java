@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.BARE_FAR_RETT;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FAR_RUNDT_FØDSEL;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FEDREKVOTE;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FELLESPERIODE;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FLERBARNSDAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FORELDREPENGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.MØDREKVOTE;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -43,20 +47,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 80)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -64,21 +67,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(false)
-            .morHarRettEØS(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT_EØS)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 80)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -86,21 +87,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(false)
-            .morRett(true)
-            .farHarRettEØS(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT_EØS)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 80)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
 
@@ -111,20 +110,21 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(7).plusDays(4))
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4);
+        assertThat(stønadskontoer).hasSize(5);
         var ekstradager = PrematurukerUtil.beregnAntallVirkedager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get().minusDays(1));
         var forventetFellesperiode = 80 + ekstradager;
         assertThat(stønadskontoer).containsEntry(FELLESPERIODE, forventetFellesperiode)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_PREMATUR, ekstradager);
         assertThat(stønadskontoResultat.getAntallPrematurDager()).isEqualTo(ekstradager);
     }
 
@@ -135,7 +135,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(8))
             .antallBarn(1)
-            .farAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -143,7 +144,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         var ekstradager = PrematurukerUtil.beregnAntallVirkedager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get().minusDays(1));
         var forventetForeldrepenger = 80 + 75 + 75 + ekstradager;
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, forventetForeldrepenger);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, forventetForeldrepenger).containsEntry(TILLEGG_PREMATUR, ekstradager);
         assertThat(stønadskontoResultat.getAntallPrematurDager()).isEqualTo(ekstradager);
     }
 
@@ -154,10 +155,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(7).plusDays(1))
             .antallBarn(2)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -180,10 +179,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -205,20 +202,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 90)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
 
@@ -234,10 +230,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -260,21 +254,21 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(5)
+        assertThat(stønadskontoer).hasSize(7)
             .containsEntry(FELLESPERIODE, 80 + 230)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 230)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 230)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -290,20 +284,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 80 + 230)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FLERBARNSDAGER, 230);
+            .containsEntry(FLERBARNSDAGER, 230)
+            .containsEntry(TILLEGG_FLERBARN, 230);
     }
 
     /*
@@ -320,21 +313,21 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(5)
+        assertThat(stønadskontoer).hasSize(7)
             .containsEntry(FELLESPERIODE, 90 + 280)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(FLERBARNSDAGER, 280);
+            .containsEntry(FLERBARNSDAGER, 280)
+            .containsEntry(TILLEGG_FLERBARN, 280)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -350,20 +343,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 90 + 280)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
-            .containsEntry(FLERBARNSDAGER, 280);
+            .containsEntry(FLERBARNSDAGER, 280)
+            .containsEntry(TILLEGG_FLERBARN, 280);
     }
 
     /*
@@ -380,21 +372,21 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(5)
+        assertThat(stønadskontoer).hasSize(7)
             .containsEntry(FELLESPERIODE, 80 + 85)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 85)
-            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+            .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 85)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -410,20 +402,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 80 + 85)
             .containsEntry(FEDREKVOTE, 75)
             .containsEntry(MØDREKVOTE, 75)
-            .containsEntry(FLERBARNSDAGER, 85);
+            .containsEntry(FLERBARNSDAGER, 85)
+            .containsEntry(TILLEGG_FLERBARN, 85);
     }
 
     /*
@@ -440,21 +431,21 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(5)
+        assertThat(stønadskontoer).hasSize(7)
             .containsEntry(FELLESPERIODE, 90 + 105)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(FLERBARNSDAGER, 105);
+            .containsEntry(FLERBARNSDAGER, 105)
+            .containsEntry(TILLEGG_FLERBARN, 105)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -470,20 +461,19 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(4)
+        assertThat(stønadskontoer).hasSize(5)
             .containsEntry(FELLESPERIODE, 90 + 105)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
-            .containsEntry(FLERBARNSDAGER, 105);
+            .containsEntry(FLERBARNSDAGER, 105)
+            .containsEntry(TILLEGG_FLERBARN, 105);
     }
 
     /*
@@ -496,10 +486,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -517,10 +505,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -539,10 +525,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -560,10 +544,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -582,16 +564,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 85);
     }
 
     /*
@@ -603,16 +584,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 85);
     }
 
     /*
@@ -625,16 +605,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(2)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 105);
     }
 
     /*
@@ -646,16 +625,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 105);
     }
 
     /*
@@ -668,16 +646,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 230);
     }
 
     /*
@@ -689,16 +666,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 230);
     }
 
     /*
@@ -711,16 +687,15 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 280);
     }
 
     /*
@@ -732,16 +707,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .farRett(false)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(true)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 280);
     }
 
     /*
@@ -753,16 +726,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 75 + 75).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -774,16 +745,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 75 + 75).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -795,16 +764,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 230).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -816,16 +783,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 280).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -837,16 +802,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 85).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -858,16 +821,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(true)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 105).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -879,16 +840,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 50 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -900,16 +859,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 100 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 75 + 75).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -923,16 +880,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(FØR_WLB)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75).containsEntry(FLERBARNSDAGER, 230);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75).containsEntry(FLERBARNSDAGER, 230).containsEntry(TILLEGG_FLERBARN, 230);
     }
 
     @Test
@@ -940,16 +895,17 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(4).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 230)
+            .containsEntry(BARE_FAR_RETT, 230)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -963,16 +919,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75).containsEntry(FLERBARNSDAGER, 280);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75).containsEntry(FLERBARNSDAGER, 280).containsEntry(TILLEGG_FLERBARN, 280);
     }
 
     @Test
@@ -980,16 +934,18 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(4)
+            .containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 280)
+            .containsEntry(BARE_FAR_RETT, 280)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -1002,16 +958,16 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75).containsEntry(FLERBARNSDAGER, 85);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
+            .containsEntry(FLERBARNSDAGER, 85)
+            .containsEntry(TILLEGG_FLERBARN, 85);
     }
 
     @Test
@@ -1019,16 +975,18 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(4)
+            .containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 85)
+            .containsEntry(BARE_FAR_RETT, 85)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     /*
@@ -1042,16 +1000,14 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75).containsEntry(FLERBARNSDAGER, 105);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75).containsEntry(FLERBARNSDAGER, 105).containsEntry(TILLEGG_FLERBARN, 105);
     }
 
     @Test
@@ -1059,36 +1015,18 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75);
-    }
-
-    /*
-    Hverken mor eller far har opptjent rett til foreldrepenger
-    */
-    @Test
-    void hverken_mor_eller_far_har_rett() {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
-            .antallBarn(1)
-            .farRett(false)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).isEmpty();
+        assertThat(stønadskontoer).hasSize(4)
+            .containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 105)
+            .containsEntry(BARE_FAR_RETT, 105)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -1096,10 +1034,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1117,10 +1053,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(LocalDate.of(2016, 1, 1))
             .omsorgsovertakelseDato(LocalDate.of(2020, 2, 10))
             .antallBarn(1)
-            .farRett(true)
-            .morRett(true)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1132,10 +1066,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1150,10 +1082,9 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .farRett(true)
-            .morRett(false)
-            .farAleneomsorg(false)
-            .morAleneomsorg(false)
+            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
+            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 

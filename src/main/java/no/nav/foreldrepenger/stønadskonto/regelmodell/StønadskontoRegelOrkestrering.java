@@ -6,6 +6,7 @@ import java.util.Map;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.BeregnKontoer;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.KontoOutcome;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.KontoerMellomregning;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
@@ -21,8 +22,9 @@ public class StønadskontoRegelOrkestrering {
         if (grunnlag.getDekningsgrad() == null) {
             throw new IllegalArgumentException("Mangler dekningsgrad");
         }
+        var mellomregning = new KontoerMellomregning(grunnlag);
         var beregnKontoer = new BeregnKontoer();
-        var evaluation = beregnKontoer.evaluer(grunnlag);
+        var evaluation = beregnKontoer.evaluer(mellomregning);
         var evaluationJson = EvaluationSerializer.asJson(evaluation, StønadskontoVersion.STØNADSKONTO_VERSION, NareVersion.NARE_VERSION);
 
         var summary = new EvaluationSummary(evaluation);

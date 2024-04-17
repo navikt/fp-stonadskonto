@@ -17,7 +17,7 @@ public class StønadsdagerImpl implements Stønadsdager {
     }
 
     @Override
-    public Integer ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato) {
+    public int ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato) {
         if (PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato)) {
             return PrematurukerUtil.beregnAntallVirkedager(fødselsdato, termindato.minusDays(1));
         }
@@ -26,7 +26,7 @@ public class StønadsdagerImpl implements Stønadsdager {
 
 
     @Override
-    public Integer ekstradagerFlerbarn(LocalDate familieHendelseDato, int antallBarn, Dekningsgrad dekningsgrad) {
+    public int ekstradagerFlerbarn(LocalDate familieHendelseDato, int antallBarn, Dekningsgrad dekningsgrad) {
         if (antallBarn < 2) {
             return 0;
         } else if (antallBarn == 2) {

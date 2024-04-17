@@ -3,111 +3,95 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Konfigurasjon;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(OpprettKontoer.ID)
-class OpprettKontoer extends LeafSpecification<BeregnKontoerGrunnlag> {
+class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
 
     private static final String KONTOER = "KONTOER";
     private static final String ANTALL_FLERBARN_DAGER = "ANTALL_FLERBARN_DAGER";
     private static final String ANTALL_PREMATUR_DAGER = "ANTALL_PREMATUR_DAGER";
 
-    private final List<Kontokonfigurasjon> kontokonfigurasjoner;
-    public static final String ID = "Opprett kontoer";
+    public static final String ID = "FP_VK 17.3";
 
-    OpprettKontoer(List<Kontokonfigurasjon> kontokonfigurasjoner) {
+    OpprettKontoer() {
         super(ID);
-        this.kontokonfigurasjoner = kontokonfigurasjoner;
     }
 
     @Override
-    public Evaluation evaluate(BeregnKontoerGrunnlag grunnlag) {
+    public Evaluation evaluate(KontoerMellomregning mellomregning) {
+        var grunnlag = mellomregning.getGrunnlag();
+        var kontokonfigurasjoner = mellomregning.getKontokonfigurasjon();
         if (kontokonfigurasjoner.isEmpty()) {
             return manglerOpptjening();
         }
         Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
-        var antallPrematurDager = 0;
+        kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.parametertype(), grunnlag)));
 
-        // Finn antall ekstra dager først.
-        var antallExtraBarnDager = finnEkstraFlerbarnsdager(grunnlag);
+        if (kontoerMap.containsKey(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR) && kontoerMap.get(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR) == null) {
+            kontoerMap.put(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR, antallVirkedagerFomFødselTilTermin(grunnlag));
+        }
 
-        // Opprette alle kontoer utenom samtidig uttak
-        for (var kontokonfigurasjon : kontokonfigurasjoner) {
-            if (kontokonfigurasjon.stønadskontotype() != StønadskontoBeregningStønadskontotype.FLERBARNSDAGER) {
-                var antallDager = Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
-                antallDager += getFlerbarnsdager(grunnlag, kontoerMap, antallExtraBarnDager, kontokonfigurasjon);
-                if (kontotypeSomKanHaEkstraFlerbarnsdager(kontokonfigurasjon) && skalLeggeTilPrematurUker(grunnlag)) {
-                    antallPrematurDager = antallVirkedagerFomFødselTilTermin(grunnlag);
-                    antallDager += antallPrematurDager;
-                }
-                kontoerMap.put(kontokonfigurasjon.stønadskontotype(), antallDager);
+        var tilleggPrematur = Optional.ofNullable(kontoerMap.get(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR)).orElse(0);
+        var tilleggFlerbarn = Optional.ofNullable(kontoerMap.get(StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN)).orElse(0);
+
+        if (tilleggFlerbarn > 0 && harVerdi(kontoerMap, StønadskontoBeregningStønadskontotype.BARE_FAR_RETT)) {
+            justerMinsterettBareFarFlerbarn(kontoerMap, grunnlag);
+        }
+
+
+        if (tilleggFlerbarn + tilleggPrematur > 0) {
+            if (kontoerMap.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE)) {
+                kontoerMap.put(StønadskontoBeregningStønadskontotype.FELLESPERIODE, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE));
+            } else {
+                kontoerMap.put(StønadskontoBeregningStønadskontotype.FORELDREPENGER, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER));
             }
         }
-        return beregnetMedResultat(kontoerMap, antallExtraBarnDager, antallPrematurDager);
+
+        var beregnet = mellomregning.getBeregnet();
+        kontoerMap.entrySet().stream()
+            .filter(e -> e.getValue() > 0)
+            .forEach(e -> beregnet.put(e.getKey(), e.getValue()));
+
+        return beregnetMedResultat(beregnet, tilleggFlerbarn, tilleggPrematur);
     }
 
-    private int getFlerbarnsdager(BeregnKontoerGrunnlag grunnlag,
-                                      Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap,
-                                      int antallExtraBarnDager,
-                                      Kontokonfigurasjon kontokonfigurasjon) {
-        if (antallExtraBarnDager == 0) {
-            return 0;
-        }
-        // Legg ekstra dager til foreldrepenger eller fellesperiode - kun for tilfelle med aktivitetskrav (og ikke minsterett)
-        if ((kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FORELDREPENGER))) {
-            if (kunFarRettIkkeAleneomsorgFlerbarnsdagerUtenAktivitetskrav(grunnlag)) {
-                kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
-            }
-            return antallExtraBarnDager;
-        } else if (kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FELLESPERIODE)) {
-            kontoerMap.put(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, antallExtraBarnDager);
-            return antallExtraBarnDager;
+    private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap, BeregnKontoerGrunnlag grunnlag) {
+        var dagerMinsterett = kontoerMap.get(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT);
+        var dagerFlerbarn = kontoerMap.get(StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN);
+        // Flerbarn og mor ufør summerers. Ellers teller flerbarnsdagene som minsterett
+        if (dagerMinsterett > hentParameter(BARE_FAR_RETT_DAGER_MINSTERETT, grunnlag)) {
+            kontoerMap.put(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, dagerFlerbarn + dagerMinsterett);
         } else {
-            return 0;
+            kontoerMap.put(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, dagerFlerbarn);
         }
     }
 
-    private boolean kontotypeSomKanHaEkstraFlerbarnsdager(Kontokonfigurasjon kontokonfigurasjon) {
-        return kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FELLESPERIODE)
-                || kontokonfigurasjon.stønadskontotype().equals(StønadskontoBeregningStønadskontotype.FORELDREPENGER);
+    private static Integer hentParameter(Parametertype parametertype, BeregnKontoerGrunnlag grunnlag) {
+        if (parametertype == null) {
+            return null;
+        }
+        return Konfigurasjon.STANDARD.getParameter(parametertype, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
     }
 
-    private int finnEkstraFlerbarnsdager(BeregnKontoerGrunnlag grunnlag) {
-        for (var kontokonfigurasjon : kontokonfigurasjoner) {
-            if (kontokonfigurasjon.stønadskontotype() == StønadskontoBeregningStønadskontotype.FLERBARNSDAGER) {
-                return Konfigurasjon.STANDARD.getParameter(kontokonfigurasjon.parametertype(), grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
-            }
-        }
-        return 0;
+    private static boolean harVerdi(Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap, StønadskontoBeregningStønadskontotype type) {
+        return kontoerMap.containsKey(type) && kontoerMap.get(type) > 0;
     }
+
 
     private int antallVirkedagerFomFødselTilTermin(BeregnKontoerGrunnlag grunnlag) {
         //Fra termin, ikke inkludert termin
         return PrematurukerUtil.beregnAntallVirkedager(grunnlag.getFødselsdato().orElseThrow(),
                 grunnlag.getTermindato().orElseThrow().minusDays(1));
-    }
-
-    private boolean skalLeggeTilPrematurUker(BeregnKontoerGrunnlag grunnlag) {
-        if (!grunnlag.erFødsel()) {
-            return false;
-        }
-
-        var fødselsdato = grunnlag.getFødselsdato();
-        var termindato = grunnlag.getTermindato();
-        return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato.orElse(null), termindato.orElse(null));
-    }
-
-    private boolean kunFarRettIkkeAleneomsorgFlerbarnsdagerUtenAktivitetskrav(BeregnKontoerGrunnlag grunnlag) {
-        return grunnlag.isFarRett() && !grunnlag.isMorRett() && !grunnlag.isFarAleneomsorg() && grunnlag.getAntallBarn() > 0 &&
-             Konfigurasjon.STANDARD.getParameter(BARE_FAR_RETT_DAGER_MINSTERETT, null, grunnlag.getKonfigurasjonsvalgdato()) <= 0;
     }
 
     private Evaluation beregnetMedResultat(Map<StønadskontoBeregningStønadskontotype, Integer> kontoer,
