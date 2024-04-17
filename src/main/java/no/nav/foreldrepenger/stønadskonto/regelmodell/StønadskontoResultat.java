@@ -9,6 +9,7 @@ public class StønadskontoResultat {
     private final Map<StønadskontoBeregningStønadskontotype, Integer> stønadskontoer;
     private final String evalueringResultat;
     private final String innsendtGrunnlag;
+    private final String  regelVersjon;
     private final Integer antallFlerbarnsdager;
     private final Integer antallPrematurDager;
 
@@ -25,6 +26,7 @@ public class StønadskontoResultat {
         this.antallFlerbarnsdager = antallFlerbarnsdager;
         this.evalueringResultat = evalueringResultat;
         this.innsendtGrunnlag = innsendtGrunnlag;
+        this.regelVersjon = StønadskontoVersion.STØNADSKONTO_VERSION.version();
     }
 
     public Map<StønadskontoBeregningStønadskontotype, Integer> getStønadskontoer() {
@@ -37,6 +39,10 @@ public class StønadskontoResultat {
 
     public String getInnsendtGrunnlag() {
         return innsendtGrunnlag;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public Integer getAntallFlerbarnsdager() {

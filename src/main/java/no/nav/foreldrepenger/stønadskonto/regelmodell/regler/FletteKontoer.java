@@ -25,6 +25,9 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
+        if (mellomregning.getGrunnlag().getTidligereUtregning().isEmpty()) {
+            return ja();
+        }
         Map<StønadskontoBeregningStønadskontotype, Integer> beregnet = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
         beregnet.putAll(mellomregning.getBeregnet());
         Map<StønadskontoBeregningStønadskontotype, Integer> opprinnelig = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
@@ -41,7 +44,6 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
             };
             verdi.ifPresent(v -> endelig.put(konto, v));
         });
-
 
         mellomregning.getBeregnet().clear();
         mellomregning.getBeregnet().putAll(endelig);

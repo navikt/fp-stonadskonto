@@ -16,8 +16,6 @@ public class KontoerMellomregning {
 
     private final Map<StønadskontoBeregningStønadskontotype, Integer> beregnet = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
 
-    private Konfigurasjonsfaktorer.Berettiget berettiget;
-
     private final List<Kontokonfigurasjon> kontokonfigurasjon = new ArrayList<>();
 
     public KontoerMellomregning(BeregnKontoerGrunnlag grunnlag) {
@@ -30,14 +28,6 @@ public class KontoerMellomregning {
 
     public Map<StønadskontoBeregningStønadskontotype, Integer> getBeregnet() {
         return beregnet;
-    }
-
-    Konfigurasjonsfaktorer.Berettiget getBerettiget() {
-        return berettiget;
-    }
-
-    void setBerettiget(Konfigurasjonsfaktorer.Berettiget berettiget) {
-        this.berettiget = berettiget;
     }
 
     List<Kontokonfigurasjon> getKontokonfigurasjon() {

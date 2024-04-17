@@ -26,49 +26,6 @@ public class Konfigurasjonsfaktorer {
             List.of(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FELLESPERIODE, Parametertype.FELLESPERIODE_DAGER),
                 new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.MØDREKVOTE, Parametertype.MØDREKVOTE_DAGER),
                 new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FEDREKVOTE, Parametertype.FEDREKVOTE_DAGER))));
+    
 
-
-
-    private Integer antallLevendeBarn;
-    private Boolean erFødsel;
-    private Berettiget berettiget;
-
-    public Konfigurasjonsfaktorer(Berettiget berettiget) {
-        this.berettiget = berettiget;
-    }
-
-    public Integer getAntallLevendeBarn() {
-        return antallLevendeBarn;
-    }
-
-    public Boolean erFødsel() {
-        return erFødsel;
-    }
-
-    public Berettiget getBerettiget() {
-        return berettiget;
-    }
-
-    public static class Builder {
-        private final Konfigurasjonsfaktorer kladd;
-
-        public Builder(Berettiget berettiget) {
-            this.kladd = new Konfigurasjonsfaktorer(berettiget);
-
-        }
-
-        public Konfigurasjonsfaktorer.Builder antallLevendeBarn(Integer antallLevendeBarn) {
-            this.kladd.antallLevendeBarn = antallLevendeBarn;
-            return this;
-        }
-
-        public Konfigurasjonsfaktorer.Builder erFødsel(Boolean erFødsel) {
-            this.kladd.erFødsel = erFødsel;
-            return this;
-        }
-
-        public Konfigurasjonsfaktorer build() {
-            return this.kladd;
-        }
-    }
 }
