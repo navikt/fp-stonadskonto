@@ -15,9 +15,6 @@ public class SjekkOmMerEnnEttBarn extends LeafSpecification<KontoerMellomregning
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        if (mellomregning.getGrunnlag().getAntallBarn() > 1) {
-            return ja();
-        }
-        return nei();
+        return mellomregning.getGrunnlag().getAntallBarn() > 1 ? ja() : nei();
     }
 }

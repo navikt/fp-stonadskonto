@@ -14,10 +14,6 @@ public class SjekkOmFødsel extends LeafSpecification<KontoerMellomregning> {
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        var grunnlag = mellomregning.getGrunnlag();
-        if (grunnlag.erFødsel()) {
-            return ja();
-        }
-        return nei();
+        return mellomregning.getGrunnlag().erFødsel() ? ja() : nei();
     }
 }

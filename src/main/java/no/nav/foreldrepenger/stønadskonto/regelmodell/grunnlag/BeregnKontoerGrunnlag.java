@@ -57,6 +57,10 @@ public class BeregnKontoerGrunnlag {
         return RettighetType.BEGGE_RETT.equals(rettighetType) || RettighetType.BEGGE_RETT_EØS.equals(rettighetType) || !BrukerRolle.MOR.equals(brukerRolle);
     }
 
+    public boolean isBeggeRett() {
+        return RettighetType.BEGGE_RETT.equals(rettighetType) || RettighetType.BEGGE_RETT_EØS.equals(rettighetType);
+    }
+
     public Dekningsgrad getDekningsgrad() {
         return dekningsgrad;
     }
@@ -91,6 +95,10 @@ public class BeregnKontoerGrunnlag {
 
     public boolean isBareFarHarRett() {
         return RettighetType.BARE_SØKER_RETT.equals(rettighetType) && !BrukerRolle.MOR.equals(brukerRolle);
+    }
+
+    public boolean isBareMorHarRett() {
+        return RettighetType.BARE_SØKER_RETT.equals(rettighetType) && BrukerRolle.MOR.equals(brukerRolle);
     }
 
     public boolean isAleneomsorg() {

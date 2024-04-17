@@ -34,7 +34,9 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
             .hvis(new SjekkOmFødsel(), new LeggTilDagerDersomPrematur())
             .hvis(new SjekkOmBareFarHarRett(), new LeggTilDagerDersomBareFarRett())
             .neste(new LeggTilDagerDersomTetteFødsler())
-            .siste(new OpprettKontoer());
+            .neste(new OpprettKontoer())
+            .neste(new FletteKontoer())
+            .siste(new FerdigBeregnetKontoer());
         return regel;
     }
 

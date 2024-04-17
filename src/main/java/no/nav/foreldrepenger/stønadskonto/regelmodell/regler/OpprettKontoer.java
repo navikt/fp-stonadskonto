@@ -31,9 +31,6 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         var grunnlag = mellomregning.getGrunnlag();
         var kontokonfigurasjoner = mellomregning.getKontokonfigurasjon();
-        if (kontokonfigurasjoner.isEmpty()) {
-            return manglerOpptjening();
-        }
         Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
         kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.parametertype(), grunnlag)));
 
@@ -52,7 +49,7 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         if (tilleggFlerbarn + tilleggPrematur > 0) {
             if (kontoerMap.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE)) {
                 kontoerMap.put(StønadskontoBeregningStønadskontotype.FELLESPERIODE, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE));
-            } else {
+            } else if (kontoerMap.containsKey(StønadskontoBeregningStønadskontotype.FORELDREPENGER)) {
                 kontoerMap.put(StønadskontoBeregningStønadskontotype.FORELDREPENGER, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER));
             }
         }
@@ -62,7 +59,7 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
             .filter(e -> e.getValue() > 0)
             .forEach(e -> beregnet.put(e.getKey(), e.getValue()));
 
-        return beregnetMedResultat(beregnet, tilleggFlerbarn, tilleggPrematur);
+        return ja();
     }
 
     private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap, BeregnKontoerGrunnlag grunnlag) {
@@ -94,22 +91,4 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
                 grunnlag.getTermindato().orElseThrow().minusDays(1));
     }
 
-    private Evaluation beregnetMedResultat(Map<StønadskontoBeregningStønadskontotype, Integer> kontoer,
-                                           Integer antallExtraBarnDager,
-                                           Integer antallPrematurDager) {
-        var outcome = new KontoOutcome(kontoer)
-            .medAntallExtraBarnDager(antallExtraBarnDager)
-            .medAntallPrematurDager(antallPrematurDager);
-        var eval = ja(outcome);
-        eval.setEvaluationProperty(KONTOER, kontoer);
-        eval.setEvaluationProperty(ANTALL_FLERBARN_DAGER, antallExtraBarnDager);
-        eval.setEvaluationProperty(ANTALL_PREMATUR_DAGER, antallPrematurDager);
-
-        return eval;
-    }
-
-    private Evaluation manglerOpptjening() {
-        var utfall = KontoOutcome.ikkeOppfylt("Hverken far eller mor har opptjent rett til foreldrepenger.");
-        return nei(utfall);
-    }
 }

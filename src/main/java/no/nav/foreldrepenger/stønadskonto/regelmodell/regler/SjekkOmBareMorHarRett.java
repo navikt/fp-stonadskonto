@@ -14,9 +14,6 @@ public class SjekkOmBareMorHarRett extends LeafSpecification<KontoerMellomregnin
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        if (mellomregning.getGrunnlag().isMorRett() && !mellomregning.getGrunnlag().isFarRett()) {
-            return ja();
-        }
-        return nei();
+        return mellomregning.getGrunnlag().isBareMorHarRett() ? ja() :  nei();
     }
 }
