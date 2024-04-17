@@ -17,10 +17,6 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(OpprettKontoer.ID)
 class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
 
-    private static final String KONTOER = "KONTOER";
-    private static final String ANTALL_FLERBARN_DAGER = "ANTALL_FLERBARN_DAGER";
-    private static final String ANTALL_PREMATUR_DAGER = "ANTALL_PREMATUR_DAGER";
-
     public static final String ID = "FP_VK 17.3";
 
     OpprettKontoer() {
