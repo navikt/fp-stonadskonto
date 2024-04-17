@@ -17,13 +17,12 @@ public class LeggTilDagerDersomPrematur extends LeafSpecification<KontoerMellomr
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         var grunnlag = mellomregning.getGrunnlag();
-        if (grunnlag.erFødsel()) {
-            var fødselsdato = grunnlag.getFødselsdato().orElse(null);
-            var termindato = grunnlag.getTermindato().orElse(null);
-            if (PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato)) {
-                mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR, null));
-            }
+        var fødselsdato = grunnlag.getFødselsdato().orElse(null);
+        var termindato = grunnlag.getTermindato().orElse(null);
+        if (PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato)) {
+            mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR, null));
         }
+
         return ja();
     }
 }

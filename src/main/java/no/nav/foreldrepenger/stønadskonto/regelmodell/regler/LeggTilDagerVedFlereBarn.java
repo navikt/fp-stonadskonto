@@ -20,13 +20,12 @@ public class LeggTilDagerVedFlereBarn extends LeafSpecification<KontoerMellomreg
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         var grunnlag = mellomregning.getGrunnlag();
-        if (mellomregning.getGrunnlag().getAntallBarn() > 1) {
-            var parametertypeFlerbarn = mellomregning.getGrunnlag().getAntallBarn() == 2 ? Parametertype.EKSTRA_DAGER_TO_BARN : Parametertype.EKSTRA_DAGER_TRE_ELLER_FLERE_BARN;
-            mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN, parametertypeFlerbarn));
-            if (aktivitetsKravIkkeMinsterett(grunnlag)) {
-                mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, parametertypeFlerbarn));
-            }
+        var parametertypeFlerbarn = mellomregning.getGrunnlag().getAntallBarn() == 2 ? Parametertype.EKSTRA_DAGER_TO_BARN : Parametertype.EKSTRA_DAGER_TRE_ELLER_FLERE_BARN;
+        mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN, parametertypeFlerbarn));
+        if (aktivitetsKravIkkeMinsterett(grunnlag)) {
+            mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FLERBARNSDAGER, parametertypeFlerbarn));
         }
+
         return ja();
     }
 

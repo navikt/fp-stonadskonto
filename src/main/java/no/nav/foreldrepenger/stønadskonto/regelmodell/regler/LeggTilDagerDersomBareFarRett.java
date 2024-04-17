@@ -18,17 +18,16 @@ public class LeggTilDagerDersomBareFarRett extends LeafSpecification<KontoerMell
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         var grunnlag = mellomregning.getGrunnlag();
-        if (grunnlag.isBareFarHarRett() && !grunnlag.isFarAleneomsorg()) {
-            if (grunnlag.isMorHarUføretrygd()) {
-                mellomregning.getKontokonfigurasjon()
-                    .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.UFØREDAGER, Parametertype.BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV));
-                mellomregning.getKontokonfigurasjon()
-                    .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, Parametertype.BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT));
-            } else {
-                mellomregning.getKontokonfigurasjon()
-                    .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT));
-            }
+        if (grunnlag.isMorHarUføretrygd()) {
+            mellomregning.getKontokonfigurasjon()
+                .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.UFØREDAGER, Parametertype.BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV));
+            mellomregning.getKontokonfigurasjon()
+                .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, Parametertype.BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT));
+        } else {
+            mellomregning.getKontokonfigurasjon()
+                .add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.BARE_FAR_RETT, Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT));
         }
+
         return ja();
     }
 
