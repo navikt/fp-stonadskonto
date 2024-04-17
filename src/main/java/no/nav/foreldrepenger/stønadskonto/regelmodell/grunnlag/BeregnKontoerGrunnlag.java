@@ -33,7 +33,7 @@ public class BeregnKontoerGrunnlag {
     private BrukerRolle brukerRolle;
 
     // For utregning av tilleggsdager
-    private int antallBarn;
+    private int antallBarn = 1;
     private LocalDate fødselsdato;
     private LocalDate termindato;
     private LocalDate omsorgsovertakelseDato;
@@ -210,12 +210,6 @@ public class BeregnKontoerGrunnlag {
             Objects.requireNonNull(kladd.brukerRolle, "brukerRolle");
             if (kladd.fødselsdato == null && kladd.termindato == null && kladd.omsorgsovertakelseDato == null) {
                 throw new IllegalArgumentException("Forventer minst en familiehendelsedato");
-            }
-            if (kladd.fødselsdato == null && kladd.termindato == null && kladd.erFødsel()) {
-                throw new IllegalArgumentException("Forventer minst en fødselsdato eller termindato");
-            }
-            if (kladd.omsorgsovertakelseDato == null && !kladd.erFødsel()) {
-                throw new IllegalArgumentException("Forventer omsorgsovertakelseDato ved adopsjon");
             }
             return kladd;
         }
