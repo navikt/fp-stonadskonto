@@ -15,7 +15,6 @@ import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parameterty
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FEDREKVOTE_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FELLESPERIODE_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_BARE_FAR_RETT_DAGER;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_FAR_ALENEOMSORG_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_MOR_ALENEOMSORG_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.MOR_TETTE_SAKER_DAGER_ADOPSJON;
@@ -67,8 +66,6 @@ public class Konfigurasjon {
 
         .leggTilParameter(FORELDREPENGER_MOR_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
         .leggTilParameter(FORELDREPENGER_MOR_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
-        .leggTilParameter(FORELDREPENGER_FAR_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
-        .leggTilParameter(FORELDREPENGER_FAR_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
         .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 200)
         .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 250)
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 15)

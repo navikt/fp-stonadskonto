@@ -25,14 +25,11 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        var rettighet = mellomregning.getGrunnlag().getRettighetType();
         var erMor = BeregnKontoerGrunnlag.BrukerRolle.MOR.equals(mellomregning.getGrunnlag().getBrukerRolle());
         if (mellomregning.getGrunnlag().isBeggeRett()) {
             mellomregning.getKontokonfigurasjon().addAll(KONFIGURASJON_BEGGE);
-        } else if (erMor) {
+        } else if (erMor || mellomregning.getGrunnlag().isAleneomsorg()) { // Bare mor rett eller Aleneomsorg (begge foreldre)
             mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_MOR_ALENEOMSORG_DAGER));
-        } else if (mellomregning.getGrunnlag().isFarAleneomsorg()) {
-            mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_FAR_ALENEOMSORG_DAGER));
         } else if (mellomregning.getGrunnlag().isBareFarHarRett()) {
             mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_BARE_FAR_RETT_DAGER));
         } else {

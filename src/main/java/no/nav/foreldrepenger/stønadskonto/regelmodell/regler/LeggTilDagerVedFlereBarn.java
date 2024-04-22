@@ -30,8 +30,8 @@ public class LeggTilDagerVedFlereBarn extends LeafSpecification<KontoerMellomreg
     }
 
     private static boolean aktivitetsKravIkkeMinsterett(BeregnKontoerGrunnlag grunnlag) {
-        var beggeRett = grunnlag.isFarRett() && grunnlag.isMorRett();
-        var bareFarRett = !beggeRett && !grunnlag.isFarAleneomsorg() && grunnlag.isFarRett();
+        var beggeRett = grunnlag.isBeggeRett();
+        var bareFarRett = grunnlag.isBareFarHarRett();
         var bareFarMinsterett = Konfigurasjon.STANDARD.getParameter(Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT, null, grunnlag.getKonfigurasjonsvalgdato()) > 0;
         return beggeRett || (bareFarRett && !bareFarMinsterett);
     }

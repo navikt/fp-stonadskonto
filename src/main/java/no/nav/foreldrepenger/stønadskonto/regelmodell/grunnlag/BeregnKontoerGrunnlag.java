@@ -65,14 +65,6 @@ public class BeregnKontoerGrunnlag {
         return dekningsgrad;
     }
 
-    public boolean isFarAleneomsorg() {
-        return RettighetType.ALENEOMSORG.equals(rettighetType) && !BrukerRolle.MOR.equals(brukerRolle);
-    }
-
-    public boolean isMorAleneomsorg() {
-        return RettighetType.ALENEOMSORG.equals(rettighetType) && BrukerRolle.MOR.equals(brukerRolle);
-    }
-
     public Map<StønadskontoBeregningStønadskontotype, Integer> getTidligereUtregning() {
         return tidligereUtregning;
     }
@@ -95,10 +87,6 @@ public class BeregnKontoerGrunnlag {
 
     public boolean isBareFarHarRett() {
         return RettighetType.BARE_SØKER_RETT.equals(rettighetType) && !BrukerRolle.MOR.equals(brukerRolle);
-    }
-
-    public boolean isBareMorHarRett() {
-        return RettighetType.BARE_SØKER_RETT.equals(rettighetType) && BrukerRolle.MOR.equals(brukerRolle);
     }
 
     public boolean isAleneomsorg() {

@@ -18,10 +18,10 @@ public class LeggTilDagerVedFødsel extends LeafSpecification<KontoerMellomregni
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         var grunnlag = mellomregning.getGrunnlag();
-        if (grunnlag.isMorAleneomsorg() || grunnlag.isMorRett()) {
+        if (grunnlag.isMorRett()) {
             mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FORELDREPENGER_FØR_FØDSEL, Parametertype.FORELDREPENGER_FØR_FØDSEL));
         }
-        if (grunnlag.isFarAleneomsorg() || grunnlag.isFarRett()) {
+        if (grunnlag.isFarRett()) {
             mellomregning.getKontokonfigurasjon().add(new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FAR_RUNDT_FØDSEL, Parametertype.FAR_DAGER_RUNDT_FØDSEL));
         }
 
