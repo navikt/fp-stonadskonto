@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 import java.util.EnumMap;
 import java.util.Map;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -21,7 +21,7 @@ class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        Map<StønadskontoBeregningStønadskontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
+        Map<StønadskontoKontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoKontotype.class);
         mellomregning.getBeregnet().entrySet().stream()
             .filter(e -> e.getValue() > 0)
             .forEach(e -> kontoerMap.put(e.getKey(), e.getValue()));

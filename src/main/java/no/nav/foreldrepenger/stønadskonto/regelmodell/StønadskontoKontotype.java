@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
-public enum StønadskontoBeregningStønadskontotype {
+public enum StønadskontoKontotype {
     FELLESPERIODE(KontoKategori.STØNADSDAGER),
     MØDREKVOTE(KontoKategori.STØNADSDAGER),
     FEDREKVOTE(KontoKategori.STØNADSDAGER),
@@ -13,8 +13,8 @@ public enum StønadskontoBeregningStønadskontotype {
     FLERBARNSDAGER(KontoKategori.AKTIVITETSKRAV), // Kan tas uten krav til aktivitet, jfr Ftl 14-13
     UFØREDAGER(KontoKategori.AKTIVITETSKRAV), // Kan tas uten krav til aktivitet, jfr Ftl 14-13. Før WLB-direktiv
 
-    TETTE_FØDSLER_MOR(KontoKategori.MINSTERETT),
-    TETTE_FØDSLER_FAR(KontoKategori.MINSTERETT),
+    TETTE_SAKER_MOR(KontoKategori.MINSTERETT),
+    TETTE_SAKER_FAR(KontoKategori.MINSTERETT),
     BARE_FAR_RETT(KontoKategori.MINSTERETT),
 
     FAR_RUNDT_FØDSEL(KontoKategori.ANNET)
@@ -24,7 +24,7 @@ public enum StønadskontoBeregningStønadskontotype {
 
     private final KontoKategori kontoKategori;
 
-    StønadskontoBeregningStønadskontotype(KontoKategori kategori) {
+    StønadskontoKontotype(KontoKategori kategori) {
         this.kontoKategori = kategori;
     }
 

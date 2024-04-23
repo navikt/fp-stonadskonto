@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGru
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.BeregnKontoer;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.KontoerMellomregning;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
-import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.fpsak.nare.evaluation.summary.NareVersion;
 import no.nav.fpsak.nare.json.JsonOutput;
 import no.nav.fpsak.nare.json.NareJsonException;
@@ -32,12 +31,12 @@ public class StønadskontoRegelOrkestrering {
         return new StønadskontoResultat(stønadskontoer, antallFlerbarnsdager, evaluationJson, grunnlagJson, antallPrematurDager);
     }
 
-    private int hentAntallFlerbarnsdager(Map<StønadskontoBeregningStønadskontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN)).orElse(0);
+    private int hentAntallFlerbarnsdager(Map<StønadskontoKontotype, Integer> kontoer) {
+        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
     }
 
-    private int hentAntallPrematurDager(Map<StønadskontoBeregningStønadskontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR)).orElse(0);
+    private int hentAntallPrematurDager(Map<StønadskontoKontotype, Integer> kontoer) {
+        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
     }
 
     private String toJson(BeregnKontoerGrunnlag grunnlag) {

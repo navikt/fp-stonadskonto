@@ -1,15 +1,15 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.BARE_FAR_RETT;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FAR_RUNDT_FØDSEL;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FEDREKVOTE;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FELLESPERIODE;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FLERBARNSDAGER;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FORELDREPENGER;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.MØDREKVOTE;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.TILLEGG_FLERBARN;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype.TILLEGG_PREMATUR;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.BARE_FAR_RETT;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FAR_RUNDT_FØDSEL;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FEDREKVOTE;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FELLESPERIODE;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FLERBARNSDAGER;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FORELDREPENGER;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FORELDREPENGER_FØR_FØDSEL;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.MØDREKVOTE;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TILLEGG_FLERBARN;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TILLEGG_PREMATUR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -20,11 +20,15 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.PrematurukerUtil;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
 
 class StønadskontoRegelOrkestreringTest {
 
@@ -47,8 +51,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -67,8 +71,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT_EØS)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -87,8 +91,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT_EØS)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -110,8 +114,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(7).plusDays(4))
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -135,8 +139,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(8))
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -155,8 +159,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(fødselsdato)
             .termindato(fødselsdato.plusWeeks(7).plusDays(1))
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -179,8 +183,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -202,8 +206,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -230,8 +234,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -254,8 +258,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -284,8 +288,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -313,8 +317,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -343,8 +347,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -372,8 +376,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -402,8 +406,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -431,8 +435,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -461,8 +465,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -486,8 +490,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -505,8 +509,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -525,8 +529,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -544,8 +548,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -564,8 +568,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -584,8 +588,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -605,8 +609,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -625,8 +629,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -646,8 +650,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -666,8 +670,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -687,8 +691,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -707,8 +711,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .omsorgsovertakelseDato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -726,8 +730,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -745,8 +749,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -764,8 +768,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -783,8 +787,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -802,8 +806,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -821,8 +825,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.ALENEOMSORG)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.ALENEOMSORG)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -840,8 +844,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -859,8 +863,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -880,8 +884,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(FØR_WLB)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -895,8 +899,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .termindato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -919,8 +923,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -934,8 +938,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(3)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -958,8 +962,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -975,8 +979,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1000,8 +1004,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -1015,8 +1019,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
 
@@ -1029,21 +1033,35 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void bergegn_kontoer_regel_skal_produsere_sporing_med_json() throws IOException {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
 
-        assertThat(new ObjectMapper().readValue(stønadskontoResultat.getInnsendtGrunnlag(), HashMap.class)).isNotNull().isNotEmpty();
-        assertThat(new ObjectMapper().readValue(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
+        var mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        var input = mapper.readValue(stønadskontoResultat.getInnsendtGrunnlag(), BeregnKontoerGrunnlag.class);
+        assertThat(input.getRettighetstype()).isEqualTo(Rettighetstype.BEGGE_RETT);
+        assertThat(input.getDekningsgrad()).isEqualTo(Dekningsgrad.DEKNINGSGRAD_100);
+        assertThat(input.getAntallBarn()).isEqualTo(1);
+        assertThat(input.erFødsel()).isTrue();
+        assertThat(input.getFamiliehendelsesdato()).isEqualTo(DATO);
+        assertThat(input.getFødselsdato()).isPresent();
+        assertThat(input.getTidligereUtregning()).isEmpty();
+        assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(DATO);
 
+        assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.version());
+
+        assertThat(mapper.readValue(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
     }
 
     @Test
@@ -1053,8 +1071,8 @@ class StønadskontoRegelOrkestreringTest {
             .fødselsdato(LocalDate.of(2016, 1, 1))
             .omsorgsovertakelseDato(LocalDate.of(2020, 2, 10))
             .antallBarn(1)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BEGGE_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.MOR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1066,8 +1084,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(FØR_WLB)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
 
@@ -1082,8 +1100,8 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(2)
-            .rettighetType(BeregnKontoerGrunnlag.RettighetType.BARE_SØKER_RETT)
-            .brukerRolle(BeregnKontoerGrunnlag.BrukerRolle.FAR)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
 
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();

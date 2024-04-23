@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
@@ -22,15 +22,12 @@ public class BeregnKontoerGrunnlag {
      *
      * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
      */
-    public enum RettighetType { ALENEOMSORG, BARE_SØKER_RETT, BEGGE_RETT, BEGGE_RETT_EØS}
-    public enum BrukerRolle { MOR, FAR, MEDMOR, UKJENT }
-
-    private final Map<StønadskontoBeregningStønadskontotype, Integer> tidligereUtregning = new LinkedHashMap<>();
+    private final Map<StønadskontoKontotype, Integer> tidligereUtregning = new LinkedHashMap<>();
 
     private LocalDate regelvalgsdato;
     private Dekningsgrad dekningsgrad;
-    private RettighetType rettighetType;
-    private BrukerRolle brukerRolle;
+    private Rettighetstype rettighetstype;
+    private Brukerrolle brukerrolle;
 
     // For utregning av tilleggsdager
     private int antallBarn = 1;
@@ -50,31 +47,31 @@ public class BeregnKontoerGrunnlag {
     }
 
     public boolean isMorRett() {
-        return RettighetType.BEGGE_RETT.equals(rettighetType) || RettighetType.BEGGE_RETT_EØS.equals(rettighetType) || BrukerRolle.MOR.equals(brukerRolle);
+        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype) || Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isFarRett() {
-        return RettighetType.BEGGE_RETT.equals(rettighetType) || RettighetType.BEGGE_RETT_EØS.equals(rettighetType) || !BrukerRolle.MOR.equals(brukerRolle);
+        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype) || !Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isBeggeRett() {
-        return RettighetType.BEGGE_RETT.equals(rettighetType) || RettighetType.BEGGE_RETT_EØS.equals(rettighetType);
+        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype);
     }
 
     public Dekningsgrad getDekningsgrad() {
         return dekningsgrad;
     }
 
-    public Map<StønadskontoBeregningStønadskontotype, Integer> getTidligereUtregning() {
+    public Map<StønadskontoKontotype, Integer> getTidligereUtregning() {
         return tidligereUtregning;
     }
 
-    public RettighetType getRettighetType() {
-        return rettighetType;
+    public Rettighetstype getRettighetstype() {
+        return rettighetstype;
     }
 
-    public BrukerRolle getBrukerRolle() {
-        return brukerRolle;
+    public Brukerrolle getBrukerrolle() {
+        return brukerrolle;
     }
 
     public boolean isMorHarUføretrygd() {
@@ -86,11 +83,11 @@ public class BeregnKontoerGrunnlag {
     }
 
     public boolean isBareFarHarRett() {
-        return RettighetType.BARE_SØKER_RETT.equals(rettighetType) && !BrukerRolle.MOR.equals(brukerRolle);
+        return Rettighetstype.BARE_SØKER_RETT.equals(rettighetstype) && !Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isAleneomsorg() {
-        return RettighetType.ALENEOMSORG.equals(rettighetType);
+        return Rettighetstype.ALENEOMSORG.equals(rettighetstype);
     }
 
     public boolean isGjelderFødsel() {
@@ -123,12 +120,10 @@ public class BeregnKontoerGrunnlag {
     }
 
     public LocalDate getFamiliehendelsesdato() {
-        if (omsorgsovertakelseDato != null) {
-            return omsorgsovertakelseDato;
-        }
-        var fd = getFødselsdato();
-        var td = getTermindato().orElse(null);
-        return fd.orElse(td);
+        return Optional.ofNullable(omsorgsovertakelseDato)
+            .or(this::getFødselsdato)
+            .or(this::getTermindato)
+            .orElse(null);
     }
 
     public static Builder builder() {
@@ -143,7 +138,7 @@ public class BeregnKontoerGrunnlag {
             return this;
         }
 
-        public Builder tidligereUtregning(Map<StønadskontoBeregningStønadskontotype, Integer> tidligereUtregnet) {
+        public Builder tidligereUtregning(Map<StønadskontoKontotype, Integer> tidligereUtregnet) {
             kladd.tidligereUtregning.putAll(tidligereUtregnet);
             return this;
         }
@@ -153,13 +148,13 @@ public class BeregnKontoerGrunnlag {
             return this;
         }
 
-        public Builder rettighetType(RettighetType rettighetType) {
-            kladd.rettighetType = rettighetType;
+        public Builder rettighetType(Rettighetstype rettighetstype) {
+            kladd.rettighetstype = rettighetstype;
             return this;
         }
 
-        public Builder brukerRolle(BrukerRolle brukerRolle) {
-            kladd.brukerRolle = brukerRolle;
+        public Builder brukerRolle(Brukerrolle brukerrolle) {
+            kladd.brukerrolle = brukerrolle;
             return this;
         }
 
@@ -194,8 +189,8 @@ public class BeregnKontoerGrunnlag {
         }
 
         public BeregnKontoerGrunnlag build() {
-            Objects.requireNonNull(kladd.rettighetType, "rettighetType");
-            Objects.requireNonNull(kladd.brukerRolle, "brukerRolle");
+            Objects.requireNonNull(kladd.rettighetstype, "rettighetType");
+            Objects.requireNonNull(kladd.brukerrolle, "brukerRolle");
             if (kladd.fødselsdato == null && kladd.termindato == null && kladd.omsorgsovertakelseDato == null) {
                 throw new IllegalArgumentException("Forventer minst en familiehendelsedato");
             }

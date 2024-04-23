@@ -5,7 +5,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
@@ -14,7 +14,7 @@ public class KontoerMellomregning {
 
     private final BeregnKontoerGrunnlag grunnlag;
 
-    private final Map<StønadskontoBeregningStønadskontotype, Integer> beregnet = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
+    private final Map<StønadskontoKontotype, Integer> beregnet = new EnumMap<>(StønadskontoKontotype.class);
 
     private final List<Kontokonfigurasjon> kontokonfigurasjon = new ArrayList<>();
 
@@ -26,7 +26,7 @@ public class KontoerMellomregning {
         return grunnlag;
     }
 
-    public Map<StønadskontoBeregningStønadskontotype, Integer> getBeregnet() {
+    public Map<StønadskontoKontotype, Integer> getBeregnet() {
         return beregnet;
     }
 

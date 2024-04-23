@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -25,11 +25,11 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
         if (mellomregning.getGrunnlag().getTidligereUtregning().isEmpty()) {
             return ja();
         }
-        Map<StønadskontoBeregningStønadskontotype, Integer> beregnet = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
+        Map<StønadskontoKontotype, Integer> beregnet = new EnumMap<>(StønadskontoKontotype.class);
         beregnet.putAll(mellomregning.getBeregnet());
-        Map<StønadskontoBeregningStønadskontotype, Integer> opprinnelig = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
+        Map<StønadskontoKontotype, Integer> opprinnelig = new EnumMap<>(StønadskontoKontotype.class);
         opprinnelig.putAll(mellomregning.getGrunnlag().getTidligereUtregning());
-        Map<StønadskontoBeregningStønadskontotype, Integer> endelig = new EnumMap<>(StønadskontoBeregningStønadskontotype.class);
+        Map<StønadskontoKontotype, Integer> endelig = new EnumMap<>(StønadskontoKontotype.class);
 
         /*
          * Opp til konsument å sjekke eventuell differanse og lagre unna.
@@ -39,7 +39,7 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
          */
         var kontovelger = utledKontoVelger(opprinnelig, beregnet);
 
-        Arrays.stream(StønadskontoBeregningStønadskontotype.values()).forEach(konto -> {
+        Arrays.stream(StønadskontoKontotype.values()).forEach(konto -> {
             Optional<Integer> verdi = switch (konto.getKontoKategori()) {
                 case STØNADSDAGER, UTVIDELSE -> kontovelger.apply(opprinnelig.get(konto), beregnet.get(konto));
                 case AKTIVITETSKRAV -> switch (konto) {
@@ -58,17 +58,17 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
     }
 
     private static BiFunction<Integer, Integer, Optional<Integer>>
-    utledKontoVelger(Map<StønadskontoBeregningStønadskontotype, Integer> m1,
-                             Map<StønadskontoBeregningStønadskontotype, Integer> m2) {
-        var fellesperiodeBegge = m1.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE) &&
-            m2.containsKey(StønadskontoBeregningStønadskontotype.FELLESPERIODE);
-        var foreldrepengerBegge = m1.containsKey(StønadskontoBeregningStønadskontotype.FORELDREPENGER) &&
-            m2.containsKey(StønadskontoBeregningStønadskontotype.FORELDREPENGER);
+    utledKontoVelger(Map<StønadskontoKontotype, Integer> m1,
+                             Map<StønadskontoKontotype, Integer> m2) {
+        var fellesperiodeBegge = m1.containsKey(StønadskontoKontotype.FELLESPERIODE) &&
+            m2.containsKey(StønadskontoKontotype.FELLESPERIODE);
+        var foreldrepengerBegge = m1.containsKey(StønadskontoKontotype.FORELDREPENGER) &&
+            m2.containsKey(StønadskontoKontotype.FORELDREPENGER);
         if (fellesperiodeBegge) {
-            return m1.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE) > m2.get(StønadskontoBeregningStønadskontotype.FELLESPERIODE)
+            return m1.get(StønadskontoKontotype.FELLESPERIODE) > m2.get(StønadskontoKontotype.FELLESPERIODE)
                 ? FletteKontoer::lhs : FletteKontoer::rhs;
         } else if (foreldrepengerBegge) {
-            return m1.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER) > m2.get(StønadskontoBeregningStønadskontotype.FORELDREPENGER)
+            return m1.get(StønadskontoKontotype.FORELDREPENGER) > m2.get(StønadskontoKontotype.FORELDREPENGER)
                 ? FletteKontoer::lhs : FletteKontoer::rhs;
         } else {
             return FletteKontoer::lhs;

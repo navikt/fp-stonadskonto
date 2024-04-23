@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
+
 class VirkedagerTest {
     private Map<DayOfWeek, LocalDate> uke;
 

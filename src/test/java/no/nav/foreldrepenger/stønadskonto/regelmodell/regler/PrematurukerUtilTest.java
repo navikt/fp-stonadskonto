@@ -7,6 +7,8 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
+
 class PrematurukerUtilTest {
 
     @Test

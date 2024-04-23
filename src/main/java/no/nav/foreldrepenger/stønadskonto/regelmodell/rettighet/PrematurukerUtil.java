@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
+package no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet;
 
 import static java.lang.Math.toIntExact;
 

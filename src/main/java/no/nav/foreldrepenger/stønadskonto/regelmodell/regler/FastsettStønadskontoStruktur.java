@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 
 import java.util.List;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoBeregningStønadskontotype;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
@@ -15,9 +15,9 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
     public static final String ID = "FP_VK 17.2.1";
 
     private static final List<Kontokonfigurasjon> KONFIGURASJON_BEGGE = List.of(
-        new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FELLESPERIODE, Parametertype.FELLESPERIODE_DAGER),
-        new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.MØDREKVOTE, Parametertype.MØDREKVOTE_DAGER),
-        new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FEDREKVOTE, Parametertype.FEDREKVOTE_DAGER));
+        new Kontokonfigurasjon(StønadskontoKontotype.FELLESPERIODE, Parametertype.FELLESPERIODE_DAGER),
+        new Kontokonfigurasjon(StønadskontoKontotype.MØDREKVOTE, Parametertype.MØDREKVOTE_DAGER),
+        new Kontokonfigurasjon(StønadskontoKontotype.FEDREKVOTE, Parametertype.FEDREKVOTE_DAGER));
 
     public FastsettStønadskontoStruktur() {
         super(ID);
@@ -25,7 +25,7 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        var erMor = BeregnKontoerGrunnlag.BrukerRolle.MOR.equals(mellomregning.getGrunnlag().getBrukerRolle());
+        var erMor = Brukerrolle.MOR.equals(mellomregning.getGrunnlag().getBrukerrolle());
         if (mellomregning.getGrunnlag().isBeggeRett()) {
             mellomregning.getKontokonfigurasjon().addAll(KONFIGURASJON_BEGGE);
         } else if (erMor || mellomregning.getGrunnlag().isAleneomsorg()) { // Bare mor rett eller Aleneomsorg (begge foreldre)
@@ -39,6 +39,6 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
     }
 
     private Kontokonfigurasjon getKonfigurasjonForeldrepenger(Parametertype parametertype) {
-        return new Kontokonfigurasjon(StønadskontoBeregningStønadskontotype.FORELDREPENGER, parametertype);
+        return new Kontokonfigurasjon(StønadskontoKontotype.FORELDREPENGER, parametertype);
     }
 }
