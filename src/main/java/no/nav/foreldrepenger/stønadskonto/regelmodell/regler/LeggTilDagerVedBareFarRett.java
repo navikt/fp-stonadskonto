@@ -6,13 +6,14 @@ import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
-@RuleDocumentation(LeggTilDagerDersomBareFarRett.ID)
-public class LeggTilDagerDersomBareFarRett extends LeafSpecification<KontoerMellomregning> {
+@RuleDocumentation(LeggTilDagerVedBareFarRett.ID)
+public class LeggTilDagerVedBareFarRett extends LeafSpecification<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17.2.5";
+    static final String ID = "FP_VK 17.2.4";
+    private static final String DESC = "Legg til for bare far rett";
 
-    public LeggTilDagerDersomBareFarRett() {
-        super(ID);
+    public LeggTilDagerVedBareFarRett() {
+        super(ID, DESC);
     }
 
     @Override

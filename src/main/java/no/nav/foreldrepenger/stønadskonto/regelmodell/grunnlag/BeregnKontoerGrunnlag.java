@@ -47,15 +47,15 @@ public class BeregnKontoerGrunnlag {
     }
 
     public boolean isMorRett() {
-        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype) || Brukerrolle.MOR.equals(brukerrolle);
+        return isBeggeRett() || Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isFarRett() {
-        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype) || !Brukerrolle.MOR.equals(brukerrolle);
+        return isBeggeRett() || !Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isBeggeRett() {
-        return Rettighetstype.BEGGE_RETT.equals(rettighetstype) || Rettighetstype.BEGGE_RETT_EØS.equals(rettighetstype);
+        return Rettighetstype.BEGGE_RETT.equals(rettighetstype);
     }
 
     public Dekningsgrad getDekningsgrad() {

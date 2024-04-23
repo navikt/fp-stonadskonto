@@ -13,10 +13,11 @@ class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
 
     private static final String KONTOER = "KONTOER";
 
-    public static final String ID = "FP_VK 17.5";
+    static final String ID = "FP_VK 17.5";
+    private static final String DESC = "Fastsett beregning";
 
     FerdigBeregnetKontoer() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override

@@ -143,7 +143,7 @@ class MinsterettTest {
     @Test
     void wlb_bfhr_mor_rett_i_eøs_skal_ikke_få_generell_minsterett() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_1)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
@@ -287,7 +287,7 @@ class MinsterettTest {
     void regeldato_bfhr_mor_rett_i_eøs_skal_ikke_få_generell_minsterett() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .regelvalgsdato(FØR_WLB)
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_1)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
@@ -299,7 +299,7 @@ class MinsterettTest {
     void regeldato_begge_rett_adopsjon_gir_ikke_dager_rundt_fødsel() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .regelvalgsdato(FØR_WLB)
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
             .omsorgsovertakelseDato(ETTER_WLB_1)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
@@ -413,7 +413,7 @@ class MinsterettTest {
     @Test
     void gammel_bfhr_mor_rett_i_eøs_skal_ikke_få_generell_minsterett() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(FØR_WLB)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)

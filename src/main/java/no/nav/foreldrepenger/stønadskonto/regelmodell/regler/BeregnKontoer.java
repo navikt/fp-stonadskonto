@@ -12,7 +12,8 @@ import no.nav.fpsak.nare.specification.Specification;
 @RuleDocumentation(value = BeregnKontoer.ID, specificationReference = "https://confluence.adeo.no/pages/viewpage.action?pageId=174837789")
 public class BeregnKontoer implements RuleService<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17";
+    static final String ID = "FP_VK 17";
+    private static final String DESC = "Beregn kontoer";
 
     public BeregnKontoer() {
         //For dokumentasjonsgenerering
@@ -26,13 +27,12 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
     @Override
     public Specification<KontoerMellomregning> getSpecification() {
         var rs = new Ruleset<KontoerMellomregning>();
-        return rs.sekvensRegel(BeregnKontoer.ID, "Beregn kontoer")
+        return rs.sekvensRegel(BeregnKontoer.ID, DESC)
             .neste(new FastsettStønadskontoStruktur())
             .hvis(new SjekkOmFødsel(), new LeggTilDagerVedFødsel())
             .hvis(new SjekkOmMerEnnEttBarn(), new LeggTilDagerVedFlereBarn())
-            .hvis(new SjekkOmFødsel(), new LeggTilDagerDersomPrematur())
-            .hvis(new SjekkOmBareFarHarRett(), new LeggTilDagerDersomBareFarRett())
-            .neste(new LeggTilDagerDersomTetteFødsler())
+            .hvis(new SjekkOmBareFarHarRett(), new LeggTilDagerVedBareFarRett())
+            .neste(new LeggTilMinsterettDersomTetteSaker())
             .neste(new OpprettKontoer())
             .neste(new FletteKontoer())
             .siste(new FerdigBeregnetKontoer());

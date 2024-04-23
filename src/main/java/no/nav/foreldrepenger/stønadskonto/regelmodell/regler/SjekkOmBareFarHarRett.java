@@ -6,10 +6,11 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(SjekkOmBareFarHarRett.ID)
 public class SjekkOmBareFarHarRett extends LeafSpecification<KontoerMellomregning> {
-    public static final String ID = "FP_VK 17.1.6";
+    static final String ID = "FP_VK 17.1.6";
+    private static final String DESC = "Hvis bare far har rett";
 
     public SjekkOmBareFarHarRett() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override

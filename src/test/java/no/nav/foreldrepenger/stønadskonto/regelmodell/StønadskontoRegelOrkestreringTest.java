@@ -71,7 +71,7 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
@@ -91,7 +91,7 @@ class StønadskontoRegelOrkestreringTest {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(DATO)
             .antallBarn(1)
-            .rettighetType(Rettighetstype.BEGGE_RETT_EØS)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
@@ -122,7 +122,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(5);
-        var ekstradager = PrematurukerUtil.ekstradagerPrematur(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
+        var ekstradager = PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
         var forventetFellesperiode = 80 + ekstradager;
         assertThat(stønadskontoer).containsEntry(FELLESPERIODE, forventetFellesperiode)
             .containsEntry(FEDREKVOTE, 75)
@@ -146,7 +146,7 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        var ekstradager = PrematurukerUtil.ekstradagerPrematur(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
+        var ekstradager = PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
         var forventetForeldrepenger = 80 + 75 + 75 + ekstradager;
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, forventetForeldrepenger).containsEntry(TILLEGG_PREMATUR, ekstradager);
         assertThat(stønadskontoResultat.getAntallPrematurDager()).isEqualTo(ekstradager);

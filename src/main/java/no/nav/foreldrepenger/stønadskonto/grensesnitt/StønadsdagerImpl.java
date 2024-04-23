@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.TetteFødslerUtil;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.TetteSakerUtil;
 
 public class StønadsdagerImpl implements Stønadsdager {
 
@@ -21,7 +21,7 @@ public class StønadsdagerImpl implements Stønadsdager {
     @Override
     public int ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato) {
         if (PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato)) {
-            return PrematurukerUtil.ekstradagerPrematur(fødselsdato, termindato);
+            return PrematurukerUtil.beregnPrematurdager(fødselsdato, termindato);
         }
         return 0;
     }
@@ -45,7 +45,7 @@ public class StønadsdagerImpl implements Stønadsdager {
 
     @Override
     public int minsterettTetteFødsler(Brukerrolle brukerrolle, boolean gjelderFødsel, LocalDate familiehendelse, LocalDate familiehendelseNesteSak) {
-        if (!TetteFødslerUtil.toTette(getRegelverksdato(familiehendelse), familiehendelse, familiehendelseNesteSak)) {
+        if (!TetteSakerUtil.toTette(getRegelverksdato(familiehendelse), familiehendelse, familiehendelseNesteSak)) {
             return 0;
         }
         if (Brukerrolle.MOR.equals(brukerrolle)) {
@@ -53,7 +53,7 @@ public class StønadsdagerImpl implements Stønadsdager {
                 Konfigurasjon.STANDARD.getParameter(Parametertype.MOR_TETTE_SAKER_DAGER_FØDSEL, null, getRegelverksdato(familiehendelse)) :
                 Konfigurasjon.STANDARD.getParameter(Parametertype.MOR_TETTE_SAKER_DAGER_ADOPSJON, null, getRegelverksdato(familiehendelse));
         } else {
-            return Konfigurasjon.STANDARD.getParameter(Parametertype.FAR_TETTE_SAKER_DAGER_MINSTERETT, null, getRegelverksdato(familiehendelse));
+            return Konfigurasjon.STANDARD.getParameter(Parametertype.FAR_TETTE_SAKER_DAGER, null, getRegelverksdato(familiehendelse));
         }
     }
 

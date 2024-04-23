@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet;
 
 import static java.lang.Math.toIntExact;
+import static java.time.Month.JULY;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Konfigurasjon;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype;
-
 public final class PrematurukerUtil {
+
+    private static final LocalDate FØRSTE_DATO_PREMATUR = LocalDate.of(2019, JULY, 1);
+    private static final Period PREMATUR_FØDSEL_DAGER_FØR_TERMIN = Period.ofDays(52);
 
     private static final int DAGER_PR_UKE = 7;
     private static final int VIRKEDAGER_PR_UKE = 5;
@@ -21,16 +23,14 @@ public final class PrematurukerUtil {
     }
 
     public static boolean oppfyllerKravTilPrematuruker(LocalDate fødselsdato, LocalDate termindato) {
-        if (fødselsdato == null || termindato == null) {
+        if (fødselsdato == null || termindato == null || fødselsdato.isBefore(FØRSTE_DATO_PREMATUR) || !fødselsdato.isBefore(termindato)) {
             return false;
         }
-        return Konfigurasjon.STANDARD.getIntervallgrenseParameter(Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, fødselsdato)
-            .filter(dager -> fødselsdato.plusDays(dager).isBefore(termindato))
-            .isPresent();
+        return fødselsdato.plus(PREMATUR_FØDSEL_DAGER_FØR_TERMIN).isBefore(termindato);
     }
 
-    public static int ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato) {
-        if (!fødselsdato.isBefore(termindato)) {
+    public static int beregnPrematurdager(LocalDate fødselsdato, LocalDate termindato) {
+        if (!oppfyllerKravTilPrematuruker(fødselsdato, termindato)) {
             return 0;
         }
         return PrematurukerUtil.beregnAntallVirkedager(fødselsdato, termindato.minusDays(1));
@@ -45,16 +45,15 @@ public final class PrematurukerUtil {
 
         try {
             // Utvid til nærmeste mandag tilbake i tid fra og med begynnelse (fom) (0-6 dager)
-            var padBefore = fom.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
+            var padBefore = ChronoUnit.DAYS.between(fom.with(DayOfWeek.MONDAY), fom);
             // Utvid til nærmeste søndag fram i tid fra og med slutt (tom) (0-6 dager)
-            var padAfter = DayOfWeek.SUNDAY.getValue() - tom.getDayOfWeek().getValue();
+            var padAfter = ChronoUnit.DAYS.between(tom, tom.with(DayOfWeek.SUNDAY));
             // Antall virkedager i perioden utvidet til hele uker
-            var virkedagerPadded = toIntExact(
-                ChronoUnit.WEEKS.between(fom.minusDays(padBefore), tom.plusDays(padAfter).plusDays(1)) * VIRKEDAGER_PR_UKE);
+            var virkedagerPadded = ChronoUnit.WEEKS.between(fom.with(DayOfWeek.MONDAY), tom.with(DayOfWeek.SUNDAY).plusDays(1)) * VIRKEDAGER_PR_UKE;
             // Antall virkedager i utvidelse
             var virkedagerPadding = Math.min(padBefore, VIRKEDAGER_PR_UKE) + Math.max(padAfter - HELGEDAGER_PR_UKE, 0);
             // Virkedager i perioden uten virkedagene fra utvidelse
-            return virkedagerPadded - virkedagerPadding;
+            return toIntExact(virkedagerPadded - virkedagerPadding);
         } catch (ArithmeticException e) {
             throw new UnsupportedOperationException("Perioden er for lang til å beregne virkedager.", e);
         }

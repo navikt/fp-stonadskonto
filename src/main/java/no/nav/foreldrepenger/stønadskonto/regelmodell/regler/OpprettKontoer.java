@@ -18,10 +18,11 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(OpprettKontoer.ID)
 class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17.3";
+    static final String ID = "FP_VK 17.3";
+    private static final String DESC = "Opprett kontoer";
 
     OpprettKontoer() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override
@@ -29,7 +30,7 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         var grunnlag = mellomregning.getGrunnlag();
         var kontokonfigurasjoner = mellomregning.getKontokonfigurasjon();
         Map<StønadskontoKontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoKontotype.class);
-        kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.parametertype(), grunnlag)));
+        kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.stønadskontotype(), k.parametertype(), grunnlag)));
 
         var tilleggPrematur = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
         var tilleggFlerbarn = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
@@ -58,19 +59,18 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         var dagerMinsterett = kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT);
         var dagerFlerbarn = kontoerMap.get(StønadskontoKontotype.TILLEGG_FLERBARN);
         // Flerbarn og mor ufør summerers. Ellers teller flerbarnsdagene som minsterett
-        if (dagerMinsterett > hentParameter(BARE_FAR_RETT_DAGER_MINSTERETT, grunnlag)) {
+        if (dagerMinsterett > hentParameter(StønadskontoKontotype.FORELDREPENGER, BARE_FAR_RETT_DAGER_MINSTERETT, grunnlag)) {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn + dagerMinsterett);
         } else {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn);
         }
     }
 
-    private static Integer hentParameter(Parametertype parametertype, BeregnKontoerGrunnlag grunnlag) {
-        return switch (parametertype) {
-            case PREMATURUKER_ANTALL_DAGER_FØR_TERMIN -> antallVirkedagerFomFødselTilTermin(grunnlag);
-            case TETTE_SAKER_MELLOMROM_UKER -> throw new IllegalStateException("Utviklerfeil: TETTE_SAKER_MELLOMROM_UKER er en grenseverdi og ikke saldoen");
-            default -> Konfigurasjon.STANDARD.getParameter(parametertype, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
-        };
+    private static Integer hentParameter(StønadskontoKontotype konto, Parametertype parametertype, BeregnKontoerGrunnlag grunnlag) {
+        if (StønadskontoKontotype.TILLEGG_PREMATUR.equals(konto)) {
+            return antallVirkedagerFomFødselTilTermin(grunnlag);
+        }
+        return Konfigurasjon.STANDARD.getParameter(parametertype, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
     }
 
     private static boolean harVerdiBareFarRett(Map<StønadskontoKontotype, Integer> kontoerMap) {
@@ -78,7 +78,7 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
     }
 
     private static int antallVirkedagerFomFødselTilTermin(BeregnKontoerGrunnlag grunnlag) {
-        return PrematurukerUtil.ekstradagerPrematur(grunnlag.getFødselsdato().orElseThrow(), grunnlag.getTermindato().orElseThrow());
+        return PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().orElseThrow(), grunnlag.getTermindato().orElseThrow());
     }
 
 }

@@ -12,7 +12,8 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(FastsettStønadskontoStruktur.ID)
 public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17.2.1";
+    static final String ID = "FP_VK 17.2.1";
+    private static final String DESC = "Velg og sett opp stønadskonto";
 
     private static final List<Kontokonfigurasjon> KONFIGURASJON_BEGGE = List.of(
         new Kontokonfigurasjon(StønadskontoKontotype.FELLESPERIODE, Parametertype.FELLESPERIODE_DAGER),
@@ -20,7 +21,7 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
         new Kontokonfigurasjon(StønadskontoKontotype.FEDREKVOTE, Parametertype.FEDREKVOTE_DAGER));
 
     public FastsettStønadskontoStruktur() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class FastsettStønadskontoStruktur extends LeafSpecification<KontoerMell
         if (mellomregning.getGrunnlag().isBeggeRett()) {
             mellomregning.getKontokonfigurasjon().addAll(KONFIGURASJON_BEGGE);
         } else if (erMor || mellomregning.getGrunnlag().isAleneomsorg()) { // Bare mor rett eller Aleneomsorg (begge foreldre)
-            mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_MOR_ALENEOMSORG_DAGER));
+            mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER));
         } else if (mellomregning.getGrunnlag().isBareFarHarRett()) {
             mellomregning.getKontokonfigurasjon().add(getKonfigurasjonForeldrepenger(Parametertype.FORELDREPENGER_BARE_FAR_RETT_DAGER));
         } else {

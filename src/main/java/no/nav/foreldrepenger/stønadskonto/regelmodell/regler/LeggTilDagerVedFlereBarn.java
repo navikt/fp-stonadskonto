@@ -11,10 +11,11 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(LeggTilDagerVedFlereBarn.ID)
 public class LeggTilDagerVedFlereBarn extends LeafSpecification<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17.2.3";
+    static final String ID = "FP_VK 17.2.3";
+    private static final String DESC = "Legg til evt flerbarnsutvidelse";
 
     public LeggTilDagerVedFlereBarn() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override

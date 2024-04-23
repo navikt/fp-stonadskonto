@@ -14,10 +14,11 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(FletteKontoer.ID)
 class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
 
-    public static final String ID = "FP_VK 17.4";
+    static final String ID = "FP_VK 17.4";
+    private static final String DESC = "Flette resultat og tidligere beregning";
 
     FletteKontoer() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.konfig;
 
 import static java.time.Month.AUGUST;
 import static java.time.Month.JANUARY;
-import static java.time.Month.JULY;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad.DEKNINGSGRAD_100;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad.DEKNINGSGRAD_80;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
@@ -11,34 +10,28 @@ import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parameterty
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.EKSTRA_DAGER_TO_BARN;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.EKSTRA_DAGER_TRE_ELLER_FLERE_BARN;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FAR_DAGER_RUNDT_FØDSEL;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FAR_TETTE_SAKER_DAGER_MINSTERETT;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FAR_TETTE_SAKER_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FEDREKVOTE_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FELLESPERIODE_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_BARE_FAR_RETT_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_FØR_FØDSEL;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_MOR_ALENEOMSORG_DAGER;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.MOR_TETTE_SAKER_DAGER_ADOPSJON;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.MOR_TETTE_SAKER_DAGER_FØDSEL;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.MØDREKVOTE_DAGER;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.PREMATURUKER_ANTALL_DAGER_FØR_TERMIN;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.TETTE_SAKER_MELLOMROM_UKER;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 
 public class Konfigurasjon {
 
-    private static final int INVALID = -1;
-    private final Predicate<Integer> VALID = e -> e > INVALID;
     private static final LocalDate DATO_TIDLIGST = LocalDate.of(2010, JANUARY, 1);
     private static final LocalDate DATO_VEDTAK = LocalDate.of(2019, JANUARY, 1);
-    private static final LocalDate DATO_PREMATUR = LocalDate.of(2019, JULY, 1);
     private static final LocalDate DATO_MINSTERETT_1 = LocalDate.of(2022, AUGUST, 2);
     private static final LocalDate DAG_FØR_MINSTERETT_1 = DATO_MINSTERETT_1.minusDays(1);
 
@@ -48,7 +41,7 @@ public class Konfigurasjon {
          * Stønadskontoer - alle parametre skal ha en sammenhengende tidslinje fra DATO_TIDLIGST med 0/dummy før ikrafttredelse
          * - Endring av kvoter/80% fom 1/1-2019
          * - Prematuruker 1/7-2019
-         * - FAB 2/8-2022
+         * - FAB/WLB fase 1 2/8-2022
          */
         // Stønadskontoer
         .leggTilParameter(MØDREKVOTE_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 75)
@@ -64,8 +57,8 @@ public class Konfigurasjon {
         .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 90)
         .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 130)
 
-        .leggTilParameter(FORELDREPENGER_MOR_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
-        .leggTilParameter(FORELDREPENGER_MOR_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
+        .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
+        .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
         .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 200)
         .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 250)
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 15)
@@ -98,14 +91,9 @@ public class Konfigurasjon {
         .leggTilParameter(MOR_TETTE_SAKER_DAGER_FØDSEL, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(MOR_TETTE_SAKER_DAGER_ADOPSJON, DATO_MINSTERETT_1, null, 40)
         .leggTilParameter(MOR_TETTE_SAKER_DAGER_ADOPSJON, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
-        .leggTilParameter(FAR_TETTE_SAKER_DAGER_MINSTERETT, DATO_MINSTERETT_1, null, 40)
-        .leggTilParameter(FAR_TETTE_SAKER_DAGER_MINSTERETT, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
+        .leggTilParameter(FAR_TETTE_SAKER_DAGER, DATO_MINSTERETT_1, null, 40)
+        .leggTilParameter(FAR_TETTE_SAKER_DAGER, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
 
-        // Grenser
-        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_MINSTERETT_1, null, 48)
-        .leggTilParameter(TETTE_SAKER_MELLOMROM_UKER, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, INVALID)
-        .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_PREMATUR, null, 52)
-        .leggTilParameter(PREMATURUKER_ANTALL_DAGER_FØR_TERMIN, DATO_TIDLIGST, DATO_PREMATUR.minusDays(1), INVALID)
         .build();
 
     private final Map<Parametertype, Collection<Parameter>> parameterMap = new EnumMap<>(Parametertype.class);
@@ -114,18 +102,9 @@ public class Konfigurasjon {
         this.parameterMap.putAll(parameterMap);
     }
 
-    public Optional<Integer> getIntervallgrenseParameter(Parametertype parametertype, final LocalDate dato) {
-        return getParameterVerdier(parametertype).stream()
-            .filter(p -> p.overlapper(null, dato))
-            .filter(v -> VALID.test(v.verdi()))
-            .findFirst()
-            .map(Parameter::verdi);
-    }
-
     public int getParameter(Parametertype parametertype, Dekningsgrad dekningsgrad, final LocalDate dato) {
         return getParameterVerdier(parametertype).stream()
             .filter(p -> p.overlapper(dekningsgrad, dato) || p.overlapper(null, dato))
-            .filter(v -> VALID.test(v.verdi()))
             .findFirst()
             .map(Parameter::verdi)
             .orElseThrow(() -> new IllegalArgumentException(

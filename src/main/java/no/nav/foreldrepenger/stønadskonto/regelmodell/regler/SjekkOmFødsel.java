@@ -6,10 +6,11 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(SjekkOmFødsel.ID)
 public class SjekkOmFødsel extends LeafSpecification<KontoerMellomregning> {
-    public static final String ID = "FP_VK 17.1.10";
+    static final String ID = "FP_VK 17.1.10";
+    private static final String DESC = "Hvis fødsel";
 
     public SjekkOmFødsel() {
-        super(ID);
+        super(ID, DESC);
     }
 
     @Override
