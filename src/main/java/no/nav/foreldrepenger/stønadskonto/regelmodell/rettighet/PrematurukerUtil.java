@@ -29,7 +29,14 @@ public final class PrematurukerUtil {
             .isPresent();
     }
 
-    public static int beregnAntallVirkedager(LocalDate fom, LocalDate tom) {
+    public static int ekstradagerPrematur(LocalDate fødselsdato, LocalDate termindato) {
+        if (!fødselsdato.isBefore(termindato)) {
+            return 0;
+        }
+        return PrematurukerUtil.beregnAntallVirkedager(fødselsdato, termindato.minusDays(1));
+    }
+
+    static int beregnAntallVirkedager(LocalDate fom, LocalDate tom) {
         Objects.requireNonNull(fom);
         Objects.requireNonNull(tom);
         if (fom.isAfter(tom)) {

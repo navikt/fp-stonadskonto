@@ -26,8 +26,7 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
     @Override
     public Specification<KontoerMellomregning> getSpecification() {
         var rs = new Ruleset<KontoerMellomregning>();
-
-        var regel = rs.sekvensRegel(BeregnKontoer.ID, "Beregn kontoer")
+        return rs.sekvensRegel(BeregnKontoer.ID, "Beregn kontoer")
             .neste(new FastsettStønadskontoStruktur())
             .hvis(new SjekkOmFødsel(), new LeggTilDagerVedFødsel())
             .hvis(new SjekkOmMerEnnEttBarn(), new LeggTilDagerVedFlereBarn())
@@ -37,7 +36,6 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
             .neste(new OpprettKontoer())
             .neste(new FletteKontoer())
             .siste(new FerdigBeregnetKontoer());
-        return regel;
     }
 
 }

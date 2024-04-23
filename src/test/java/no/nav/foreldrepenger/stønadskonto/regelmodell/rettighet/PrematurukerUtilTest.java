@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
+package no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
-
-import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
 
 class PrematurukerUtilTest {
 

@@ -54,9 +54,8 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
         return ja();
     }
 
-    private static BiFunction<Integer, Integer, Optional<Integer>>
-    utledKontoVelger(Map<StønadskontoKontotype, Integer> m1,
-                             Map<StønadskontoKontotype, Integer> m2) {
+    private static BiFunction<Integer, Integer, Optional<Integer>> utledKontoVelger(Map<StønadskontoKontotype, Integer> m1,
+                                                                                    Map<StønadskontoKontotype, Integer> m2) {
         var fellesperiodeBegge = m1.containsKey(StønadskontoKontotype.FELLESPERIODE) &&
             m2.containsKey(StønadskontoKontotype.FELLESPERIODE);
         var foreldrepengerBegge = m1.containsKey(StønadskontoKontotype.FORELDREPENGER) &&

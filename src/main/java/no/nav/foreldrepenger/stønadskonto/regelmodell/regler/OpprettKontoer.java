@@ -31,17 +31,12 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         Map<StønadskontoKontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoKontotype.class);
         kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.parametertype(), grunnlag)));
 
-        if (kontoerMap.containsKey(StønadskontoKontotype.TILLEGG_PREMATUR) && kontoerMap.get(StønadskontoKontotype.TILLEGG_PREMATUR) == null) {
-            kontoerMap.put(StønadskontoKontotype.TILLEGG_PREMATUR, antallVirkedagerFomFødselTilTermin(grunnlag));
-        }
-
         var tilleggPrematur = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
         var tilleggFlerbarn = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
 
         if (tilleggFlerbarn > 0 && harVerdiBareFarRett(kontoerMap)) {
             justerMinsterettBareFarFlerbarn(kontoerMap, grunnlag);
         }
-
 
         if (tilleggFlerbarn + tilleggPrematur > 0) {
             if (kontoerMap.containsKey(StønadskontoKontotype.FELLESPERIODE)) {
@@ -71,21 +66,19 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
     }
 
     private static Integer hentParameter(Parametertype parametertype, BeregnKontoerGrunnlag grunnlag) {
-        return Optional.ofNullable(parametertype)
-            .map(p -> Konfigurasjon.STANDARD.getParameter(p, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato()))
-            .orElse(null);
+        return switch (parametertype) {
+            case PREMATURUKER_ANTALL_DAGER_FØR_TERMIN -> antallVirkedagerFomFødselTilTermin(grunnlag);
+            case TETTE_SAKER_MELLOMROM_UKER -> throw new IllegalStateException("Utviklerfeil: TETTE_SAKER_MELLOMROM_UKER er en grenseverdi og ikke saldoen");
+            default -> Konfigurasjon.STANDARD.getParameter(parametertype, grunnlag.getDekningsgrad(), grunnlag.getKonfigurasjonsvalgdato());
+        };
     }
 
     private static boolean harVerdiBareFarRett(Map<StønadskontoKontotype, Integer> kontoerMap) {
-        return kontoerMap.containsKey(StønadskontoKontotype.BARE_FAR_RETT) &&
-            kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT) > 0;
+        return kontoerMap.containsKey(StønadskontoKontotype.BARE_FAR_RETT) && kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT) > 0;
     }
 
-
-    private int antallVirkedagerFomFødselTilTermin(BeregnKontoerGrunnlag grunnlag) {
-        //Fra termin, ikke inkludert termin
-        return PrematurukerUtil.beregnAntallVirkedager(grunnlag.getFødselsdato().orElseThrow(),
-                grunnlag.getTermindato().orElseThrow().minusDays(1));
+    private static int antallVirkedagerFomFødselTilTermin(BeregnKontoerGrunnlag grunnlag) {
+        return PrematurukerUtil.ekstradagerPrematur(grunnlag.getFødselsdato().orElseThrow(), grunnlag.getTermindato().orElseThrow());
     }
 
 }
