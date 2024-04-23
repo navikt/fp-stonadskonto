@@ -22,6 +22,7 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
+        // Bruker gjeldende utregning dersom input er tom og det ikke skal flettes
         if (mellomregning.getGrunnlag().getTidligereUtregning().isEmpty()) {
             return ja();
         }
@@ -40,14 +41,10 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
         var kontovelger = utledKontoVelger(opprinnelig, beregnet);
 
         Arrays.stream(StønadskontoKontotype.values()).forEach(konto -> {
-            Optional<Integer> verdi = switch (konto.getKontoKategori()) {
-                case STØNADSDAGER, UTVIDELSE -> kontovelger.apply(opprinnelig.get(konto), beregnet.get(konto));
-                case AKTIVITETSKRAV -> switch (konto) {
-                    case FLERBARNSDAGER -> kontovelger.apply(opprinnelig.get(konto), beregnet.get(konto));
-                    case UFØREDAGER -> Optional.ofNullable(beregnet.get(konto));
-                    default -> Optional.empty();
-                };
-                case MINSTERETT, ANNET -> Optional.ofNullable(beregnet.get(konto));
+            var verdi = switch (konto) {
+                case FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL,
+                    TILLEGG_FLERBARN, TILLEGG_PREMATUR, FLERBARNSDAGER -> kontovelger.apply(opprinnelig.get(konto), beregnet.get(konto));
+                case UFØREDAGER, TETTE_SAKER_MOR, TETTE_SAKER_FAR, BARE_FAR_RETT, FAR_RUNDT_FØDSEL -> Optional.ofNullable(beregnet.get(konto));
             };
             verdi.ifPresent(v -> endelig.put(konto, v));
         });
