@@ -32,7 +32,7 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
             .hvis(new SjekkOmFødsel(), new LeggTilDagerVedFødsel())
             .hvis(new SjekkOmMerEnnEttBarn(), new LeggTilDagerVedFlereBarn())
             .hvis(new SjekkOmBareFarHarRett(), new LeggTilDagerVedBareFarRett())
-            .neste(new LeggTilMinsterettDersomTetteSaker())
+            .hvis(new SjekkOmTetteSaker(), new LeggTilMinsterettVedTetteSaker())
             .neste(new OpprettKontoer())
             .neste(new FletteKontoer())
             .siste(new FerdigBeregnetKontoer());
