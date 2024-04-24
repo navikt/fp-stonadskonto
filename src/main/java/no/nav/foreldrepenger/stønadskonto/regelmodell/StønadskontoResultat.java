@@ -6,13 +6,14 @@ import java.util.Objects;
 
 public class StønadskontoResultat {
 
-    private final Map<StønadskontoBeregningStønadskontotype, Integer> stønadskontoer;
+    private final Map<StønadskontoKontotype, Integer> stønadskontoer;
     private final String evalueringResultat;
     private final String innsendtGrunnlag;
+    private final String  regelVersjon;
     private final Integer antallFlerbarnsdager;
     private final Integer antallPrematurDager;
 
-    public StønadskontoResultat(Map<StønadskontoBeregningStønadskontotype, Integer> stønadskontoer,
+    public StønadskontoResultat(Map<StønadskontoKontotype, Integer> stønadskontoer,
                                 Integer antallFlerbarnsdager,
                                 String evalueringResultat,
                                 String innsendtGrunnlag,
@@ -25,9 +26,10 @@ public class StønadskontoResultat {
         this.antallFlerbarnsdager = antallFlerbarnsdager;
         this.evalueringResultat = evalueringResultat;
         this.innsendtGrunnlag = innsendtGrunnlag;
+        this.regelVersjon = StønadskontoVersion.STØNADSKONTO_VERSION.version();
     }
 
-    public Map<StønadskontoBeregningStønadskontotype, Integer> getStønadskontoer() {
+    public Map<StønadskontoKontotype, Integer> getStønadskontoer() {
         return Collections.unmodifiableMap(stønadskontoer);
     }
 
@@ -37,6 +39,10 @@ public class StønadskontoResultat {
 
     public String getInnsendtGrunnlag() {
         return innsendtGrunnlag;
+    }
+
+    public String getRegelVersjon() {
+        return regelVersjon;
     }
 
     public Integer getAntallFlerbarnsdager() {

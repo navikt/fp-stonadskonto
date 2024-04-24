@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
@@ -18,21 +22,22 @@ public class BeregnKontoerGrunnlag {
      *
      * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
      */
-    private LocalDate regelvalgsdato;
+    private final Map<StønadskontoKontotype, Integer> tidligereUtregning = new LinkedHashMap<>();
 
-    private int antallBarn;
-    private boolean morRett;
-    private boolean farRett;
+    private LocalDate regelvalgsdato;
     private Dekningsgrad dekningsgrad;
-    private boolean farAleneomsorg;
-    private boolean morAleneomsorg;
-    private boolean farHarRettEØS;
-    private boolean morHarRettEØS;
+    private Rettighetstype rettighetstype;
+    private Brukerrolle brukerrolle;
+
+    // For utregning av tilleggsdager
+    private int antallBarn = 1;
     private LocalDate fødselsdato;
     private LocalDate termindato;
-    //adopsjon
     private LocalDate omsorgsovertakelseDato;
-    private boolean minsterett = true;
+
+    // For utregning av tilkommet minsterett
+    private boolean morHarUføretrygd;
+    private LocalDate familieHendelseDatoNesteSak;
 
     private BeregnKontoerGrunnlag() {
     }
@@ -42,31 +47,68 @@ public class BeregnKontoerGrunnlag {
     }
 
     public boolean isMorRett() {
-        return morRett || morHarRettEØS;
+        return isBeggeRett() || Brukerrolle.MOR.equals(brukerrolle);
     }
 
     public boolean isFarRett() {
-        return farRett || farHarRettEØS;
+        return isBeggeRett() || !Brukerrolle.MOR.equals(brukerrolle);
+    }
+
+    public boolean isBeggeRett() {
+        return Rettighetstype.BEGGE_RETT.equals(rettighetstype);
     }
 
     public Dekningsgrad getDekningsgrad() {
         return dekningsgrad;
     }
 
-    public boolean isFarAleneomsorg() {
-        return farAleneomsorg;
+    public Map<StønadskontoKontotype, Integer> getTidligereUtregning() {
+        return tidligereUtregning;
     }
 
-    public boolean isMorAleneomsorg() {
-        return morAleneomsorg;
+    public Rettighetstype getRettighetstype() {
+        return rettighetstype;
     }
+
+    public Brukerrolle getBrukerrolle() {
+        return brukerrolle;
+    }
+
+    public boolean isMorHarUføretrygd() {
+        return morHarUføretrygd;
+    }
+
+    public LocalDate getFamilieHendelseDatoNesteSak() {
+        return familieHendelseDatoNesteSak;
+    }
+
+    public boolean isBareFarHarRett() {
+        return Rettighetstype.BARE_SØKER_RETT.equals(rettighetstype) && !Brukerrolle.MOR.equals(brukerrolle);
+    }
+
+    public boolean isAleneomsorg() {
+        return Rettighetstype.ALENEOMSORG.equals(rettighetstype);
+    }
+
+    public boolean isGjelderFødsel() {
+        return erFødsel();
+    }
+
+    public LocalDate getFamilieHendelseDato() {
+        return getFamiliehendelsesdato();
+    }
+
+    private Optional<LocalDate> getRegelvalgsdato() {
+        return Optional.ofNullable(regelvalgsdato);
+    }
+
+    public LocalDate getKonfigurasjonsvalgdato() {
+        return getRegelvalgsdato().orElseGet(this::getFamilieHendelseDato);
+    }
+
 
     public boolean erFødsel() {
         return fødselsdato != null || termindato != null;
-    }
-
-    public boolean isMinsterett() {
-        return minsterett;
     }
 
     public Optional<LocalDate> getFødselsdato() {
@@ -78,20 +120,10 @@ public class BeregnKontoerGrunnlag {
     }
 
     public LocalDate getFamiliehendelsesdato() {
-        if (omsorgsovertakelseDato != null) {
-            return omsorgsovertakelseDato;
-        }
-        var fd = getFødselsdato();
-        var td = getTermindato().orElse(null);
-        return fd.orElse(td);
-    }
-
-    public Optional<LocalDate> getRegelvalgsdato() {
-        return Optional.ofNullable(regelvalgsdato);
-    }
-
-    public LocalDate getKonfigurasjonsvalgdato() {
-        return getRegelvalgsdato().orElseGet(this::getFamiliehendelsesdato);
+        return Optional.ofNullable(omsorgsovertakelseDato)
+            .or(this::getFødselsdato)
+            .or(this::getTermindato)
+            .orElse(null);
     }
 
     public static Builder builder() {
@@ -106,43 +138,28 @@ public class BeregnKontoerGrunnlag {
             return this;
         }
 
+        public Builder tidligereUtregning(Map<StønadskontoKontotype, Integer> tidligereUtregnet) {
+            kladd.tidligereUtregning.putAll(tidligereUtregnet);
+            return this;
+        }
+
         public Builder antallBarn(int antallBarn) {
             kladd.antallBarn = antallBarn;
             return this;
         }
 
-        public Builder morRett(boolean morHarRett) {
-            kladd.morRett = morHarRett;
+        public Builder rettighetType(Rettighetstype rettighetstype) {
+            kladd.rettighetstype = rettighetstype;
             return this;
         }
 
-        public Builder farRett(boolean farHarRett) {
-            kladd.farRett = farHarRett;
-            return this;
-        }
-
-        public Builder morHarRettEØS(boolean morHarRettEØS) {
-            kladd.morHarRettEØS = morHarRettEØS;
-            return this;
-        }
-
-        public Builder farHarRettEØS(boolean farHarRettEØS) {
-            kladd.farHarRettEØS = farHarRettEØS;
+        public Builder brukerRolle(Brukerrolle brukerrolle) {
+            kladd.brukerrolle = brukerrolle;
             return this;
         }
 
         public Builder dekningsgrad(Dekningsgrad dekningsgrad) {
             kladd.dekningsgrad = dekningsgrad;
-            return this;
-        }
-
-        public Builder farAleneomsorg(boolean farAleneomsorg) {
-            kladd.farAleneomsorg = farAleneomsorg;
-            return this;
-        }
-
-        public Builder morAleneomsorg(boolean morAleneomsorg) {
-            kladd.morAleneomsorg = morAleneomsorg;
             return this;
         }
 
@@ -161,20 +178,21 @@ public class BeregnKontoerGrunnlag {
             return this;
         }
 
-        public Builder minsterett(boolean minsterett) {
-            kladd.minsterett = minsterett;
+        public Builder morHarUføretrygd(boolean morHarUføretrygd) {
+            kladd.morHarUføretrygd =  morHarUføretrygd;
+            return this;
+        }
+
+        public Builder familieHendelseDatoNesteSak(LocalDate familieHendelseDatoNesteSak) {
+            kladd.familieHendelseDatoNesteSak = familieHendelseDatoNesteSak;
             return this;
         }
 
         public BeregnKontoerGrunnlag build() {
+            Objects.requireNonNull(kladd.rettighetstype, "rettighetType");
+            Objects.requireNonNull(kladd.brukerrolle, "brukerRolle");
             if (kladd.fødselsdato == null && kladd.termindato == null && kladd.omsorgsovertakelseDato == null) {
                 throw new IllegalArgumentException("Forventer minst en familiehendelsedato");
-            }
-            if (kladd.fødselsdato == null && kladd.termindato == null && kladd.erFødsel()) {
-                throw new IllegalArgumentException("Forventer minst en fødselsdato eller termindato");
-            }
-            if (kladd.omsorgsovertakelseDato == null && !kladd.erFødsel()) {
-                throw new IllegalArgumentException("Forventer omsorgsovertakelseDato ved adopsjon");
             }
             return kladd;
         }
