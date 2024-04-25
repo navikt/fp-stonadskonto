@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
@@ -36,7 +35,8 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         var tilleggFlerbarn = kontoerMap.getOrDefault(StønadskontoKontotype.TILLEGG_FLERBARN, 0);
 
         if (tilleggFlerbarn > 0 && harVerdiBareFarRett(kontoerMap)) {
-            justerMinsterettBareFarFlerbarn(kontoerMap, tilleggFlerbarn, kontokonfigurasjoner);
+            var standardMinsterettPåDato = hentParameter(StønadskontoKontotype.FORELDREPENGER, BARE_FAR_RETT_DAGER_MINSTERETT, grunnlag);
+            justerMinsterettBareFarFlerbarn(kontoerMap, tilleggFlerbarn, standardMinsterettPåDato);
         }
 
         if (tilleggFlerbarn + tilleggPrematur > 0) {
@@ -55,13 +55,10 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         return ja();
     }
 
-    private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoKontotype, Integer> kontoerMap, int dagerFlerbarn, List<Kontokonfigurasjon> konfig) {
+    private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoKontotype, Integer> kontoerMap, int dagerFlerbarn, int standardMinsterettPåDato) {
         var dagerMinsterett = kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT);
-        var ikkeStandardMinsterett = konfig.stream()
-            .filter(k -> StønadskontoKontotype.BARE_FAR_RETT.equals(k.stønadskontotype()))
-            .anyMatch(k -> !BARE_FAR_RETT_DAGER_MINSTERETT.equals(k.parametertype()));
         // Etter WLB 1: Flerbarn og mor ufør summeres. Ellers teller flerbarnsdagene som minsterett. Situasjonen kan utvikles over tid.
-        if (ikkeStandardMinsterett) {
+        if (dagerMinsterett != standardMinsterettPåDato) {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn + dagerMinsterett);
         } else {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn);
@@ -76,7 +73,7 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
     }
 
     private static boolean harVerdiBareFarRett(Map<StønadskontoKontotype, Integer> kontoerMap) {
-        return kontoerMap.containsKey(StønadskontoKontotype.BARE_FAR_RETT) && kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT) > 0;
+        return kontoerMap.getOrDefault(StønadskontoKontotype.BARE_FAR_RETT, 0) > 0;
     }
 
     private static int antallVirkedagerFomFødselTilTermin(BeregnKontoerGrunnlag grunnlag) {
