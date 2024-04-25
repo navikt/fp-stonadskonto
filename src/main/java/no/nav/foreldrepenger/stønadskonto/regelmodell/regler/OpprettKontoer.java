@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
@@ -32,11 +32,11 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         Map<StønadskontoKontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoKontotype.class);
         kontokonfigurasjoner.forEach(k -> kontoerMap.put(k.stønadskontotype(), hentParameter(k.stønadskontotype(), k.parametertype(), grunnlag)));
 
-        var tilleggPrematur = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
-        var tilleggFlerbarn = Optional.ofNullable(kontoerMap.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
+        var tilleggPrematur = kontoerMap.getOrDefault(StønadskontoKontotype.TILLEGG_PREMATUR, 0);
+        var tilleggFlerbarn = kontoerMap.getOrDefault(StønadskontoKontotype.TILLEGG_FLERBARN, 0);
 
         if (tilleggFlerbarn > 0 && harVerdiBareFarRett(kontoerMap)) {
-            justerMinsterettBareFarFlerbarn(kontoerMap, grunnlag);
+            justerMinsterettBareFarFlerbarn(kontoerMap, tilleggFlerbarn, kontokonfigurasjoner);
         }
 
         if (tilleggFlerbarn + tilleggPrematur > 0) {
@@ -55,11 +55,13 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
         return ja();
     }
 
-    private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoKontotype, Integer> kontoerMap, BeregnKontoerGrunnlag grunnlag) {
+    private static void justerMinsterettBareFarFlerbarn(Map<StønadskontoKontotype, Integer> kontoerMap, int dagerFlerbarn, List<Kontokonfigurasjon> konfig) {
         var dagerMinsterett = kontoerMap.get(StønadskontoKontotype.BARE_FAR_RETT);
-        var dagerFlerbarn = kontoerMap.get(StønadskontoKontotype.TILLEGG_FLERBARN);
-        // Flerbarn og mor ufør summerers. Ellers teller flerbarnsdagene som minsterett
-        if (dagerMinsterett > hentParameter(StønadskontoKontotype.FORELDREPENGER, BARE_FAR_RETT_DAGER_MINSTERETT, grunnlag)) {
+        var ikkeStandardMinsterett = konfig.stream()
+            .filter(k -> StønadskontoKontotype.BARE_FAR_RETT.equals(k.stønadskontotype()))
+            .anyMatch(k -> !BARE_FAR_RETT_DAGER_MINSTERETT.equals(k.parametertype()));
+        // Etter WLB 1: Flerbarn og mor ufør summeres. Ellers teller flerbarnsdagene som minsterett. Situasjonen kan utvikles over tid.
+        if (ikkeStandardMinsterett) {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn + dagerMinsterett);
         } else {
             kontoerMap.put(StønadskontoKontotype.BARE_FAR_RETT, dagerFlerbarn);

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
 import java.util.Map;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.BeregnKontoer;
@@ -32,11 +31,11 @@ public class StønadskontoRegelOrkestrering {
     }
 
     private int hentAntallFlerbarnsdager(Map<StønadskontoKontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
+        return kontoer.getOrDefault(StønadskontoKontotype.TILLEGG_FLERBARN, 0);
     }
 
     private int hentAntallPrematurDager(Map<StønadskontoKontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
+        return kontoer.getOrDefault(StønadskontoKontotype.TILLEGG_PREMATUR, 0);
     }
 
     private String toJson(BeregnKontoerGrunnlag grunnlag) {
