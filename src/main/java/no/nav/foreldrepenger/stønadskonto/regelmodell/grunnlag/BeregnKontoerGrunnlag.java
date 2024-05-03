@@ -95,7 +95,10 @@ public class BeregnKontoerGrunnlag {
     }
 
     public LocalDate getFamilieHendelseDato() {
-        return getFamiliehendelsesdato();
+        return Optional.ofNullable(omsorgsovertakelseDato)
+            .or(this::getFødselsdato)
+            .or(this::getTermindato)
+            .orElse(null);
     }
 
     private Optional<LocalDate> getRegelvalgsdato() {
@@ -117,13 +120,6 @@ public class BeregnKontoerGrunnlag {
 
     public Optional<LocalDate> getTermindato() {
         return Optional.ofNullable(termindato);
-    }
-
-    public LocalDate getFamiliehendelsesdato() {
-        return Optional.ofNullable(omsorgsovertakelseDato)
-            .or(this::getFødselsdato)
-            .or(this::getTermindato)
-            .orElse(null);
     }
 
     public static Builder builder() {
