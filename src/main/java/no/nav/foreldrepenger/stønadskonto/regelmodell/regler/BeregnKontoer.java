@@ -34,7 +34,7 @@ public class BeregnKontoer implements RuleService<KontoerMellomregning> {
             .hvis(new SjekkOmBareFarHarRett(), new LeggTilDagerVedBareFarRett())
             .hvis(new SjekkOmTetteSaker(), new LeggTilMinsterettVedTetteSaker())
             .neste(new OpprettKontoer())
-            .neste(new FletteKontoer())
+            .hvis(new SjekkOmTidligereBeregnet(), new FletteKontoer())
             .siste(new FerdigBeregnetKontoer());
     }
 

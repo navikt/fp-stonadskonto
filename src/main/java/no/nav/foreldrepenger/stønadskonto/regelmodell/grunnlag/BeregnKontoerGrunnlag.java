@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +22,7 @@ public class BeregnKontoerGrunnlag {
      *
      * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
      */
-    private final Map<StønadskontoKontotype, Integer> tidligereUtregning = new LinkedHashMap<>();
+    private final Map<StønadskontoKontotype, Integer> tidligereUtregning = new EnumMap<>(StønadskontoKontotype.class);
 
     private LocalDate regelvalgsdato;
     private Dekningsgrad dekningsgrad;

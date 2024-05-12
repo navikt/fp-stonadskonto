@@ -1,12 +1,18 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class StønadskontoResultat {
 
-    private final Map<StønadskontoKontotype, Integer> stønadskontoer;
+    // Fletting som velger max av input
+    private final Map<StønadskontoKontotype, Integer> stønadskontoer = new EnumMap<>(StønadskontoKontotype.class);
+    // Normal fletting av input (behold kontoer) med dynamisk rettighet
+    private final Map<StønadskontoKontotype, Integer> stønadskontoerBeholdStønadsdager = new EnumMap<>(StønadskontoKontotype.class);
+
+    private final Map<StønadskontoKontotype, Integer> stønadskontoerFørFletting = new EnumMap<>(StønadskontoKontotype.class);
     private final String evalueringResultat;
     private final String innsendtGrunnlag;
     private final String  regelVersjon;
@@ -14,6 +20,8 @@ public class StønadskontoResultat {
     private final Integer antallPrematurDager;
 
     public StønadskontoResultat(Map<StønadskontoKontotype, Integer> stønadskontoer,
+                                Map<StønadskontoKontotype, Integer> stønadskontoerBeholdStønadsdager,
+                                Map<StønadskontoKontotype, Integer> stønadskontoerFørFletting,
                                 Integer antallFlerbarnsdager,
                                 String evalueringResultat,
                                 String innsendtGrunnlag,
@@ -22,7 +30,9 @@ public class StønadskontoResultat {
         Objects.requireNonNull(stønadskontoer);
         Objects.requireNonNull(evalueringResultat);
         Objects.requireNonNull(innsendtGrunnlag);
-        this.stønadskontoer = stønadskontoer;
+        this.stønadskontoer.putAll(stønadskontoer);
+        this.stønadskontoerBeholdStønadsdager.putAll(stønadskontoerBeholdStønadsdager);
+        this.stønadskontoerFørFletting.putAll(stønadskontoerFørFletting);
         this.antallFlerbarnsdager = antallFlerbarnsdager;
         this.evalueringResultat = evalueringResultat;
         this.innsendtGrunnlag = innsendtGrunnlag;
@@ -31,6 +41,14 @@ public class StønadskontoResultat {
 
     public Map<StønadskontoKontotype, Integer> getStønadskontoer() {
         return Collections.unmodifiableMap(stønadskontoer);
+    }
+
+    public Map<StønadskontoKontotype, Integer> getStønadskontoerBeholdStønadsdager() {
+        return Collections.unmodifiableMap(stønadskontoerBeholdStønadsdager);
+    }
+
+    public Map<StønadskontoKontotype, Integer> getStønadskontoerFørFletting() {
+        return stønadskontoerFørFletting;
     }
 
     public String getEvalueringResultat() {

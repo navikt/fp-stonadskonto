@@ -23,11 +23,15 @@ public class StønadskontoRegelOrkestrering {
         var evaluation = beregnKontoer.evaluer(mellomregning);
         var evaluationJson = EvaluationSerializer.asJson(evaluation, StønadskontoVersion.STØNADSKONTO_VERSION, NareVersion.NARE_VERSION);
 
-        var stønadskontoer = mellomregning.getBeregnet();
+        var førFletting = mellomregning.getBeregnet();
+        var stønadskontoer = mellomregning.getFlettet().isEmpty() ? førFletting : mellomregning.getFlettet();
+        var stønadkontoerBeholdStønadsdager = mellomregning.getFlettetBeholdStønadsdager().isEmpty() ?
+            stønadskontoer : mellomregning.getFlettetBeholdStønadsdager();
         var antallFlerbarnsdager = hentAntallFlerbarnsdager(stønadskontoer);
         var antallPrematurDager = hentAntallPrematurDager(stønadskontoer);
 
-        return new StønadskontoResultat(stønadskontoer, antallFlerbarnsdager, evaluationJson, grunnlagJson, antallPrematurDager);
+        return new StønadskontoResultat(stønadskontoer, stønadkontoerBeholdStønadsdager, førFletting,
+            antallFlerbarnsdager, evaluationJson, grunnlagJson, antallPrematurDager);
     }
 
     private int hentAntallFlerbarnsdager(Map<StønadskontoKontotype, Integer> kontoer) {

@@ -40,9 +40,12 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(FORELDREPENGER, 230))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FORELDREPENGER, 230);
         assertThat(retter).doesNotContainKey(FELLESPERIODE);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 230);
+        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
     }
 
     @Test
@@ -55,9 +58,12 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FELLESPERIODE, 80);
         assertThat(retter).doesNotContainKey(FORELDREPENGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 80);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -71,9 +77,14 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
-        assertThat(retter).containsEntry(FELLESPERIODE, 120);
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
+        assertThat(retter).containsEntry(FELLESPERIODE, 80);
+        assertThat(retter).doesNotContainKey(StønadskontoKontotype.TILLEGG_PREMATUR);
         assertThat(retter).doesNotContainKey(FORELDREPENGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 120);
+        assertThat(retterMax).containsEntry(StønadskontoKontotype.TILLEGG_PREMATUR, 40);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -87,10 +98,14 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 120, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FELLESPERIODE, 120);
         assertThat(retter).containsEntry(FAR_RUNDT_FØDSEL, 10);
         assertThat(retter).doesNotContainKey(FORELDREPENGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 120);
+        assertThat(retterMax).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -103,10 +118,14 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
-        assertThat(retter).containsEntry(FELLESPERIODE, 90);
-        assertThat(retter).containsEntry(MØDREKVOTE, 95);
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
+        assertThat(retter).containsEntry(FELLESPERIODE, 80);
+        assertThat(retter).containsEntry(MØDREKVOTE, 75);
         assertThat(retter).doesNotContainKey(FORELDREPENGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 90);
+        assertThat(retterMax).containsEntry(MØDREKVOTE, 95);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -120,11 +139,17 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(FORELDREPENGER, 200))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FORELDREPENGER, 200);
         assertThat(retter).containsEntry(UFØREDAGER, 75);
         assertThat(retter).doesNotContainKey(FELLESPERIODE);
         assertThat(retter).doesNotContainKey(BARE_FAR_RETT);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 200);
+        assertThat(retterMax).containsEntry(UFØREDAGER, 75);
+        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
+        assertThat(retterMax).doesNotContainKey(BARE_FAR_RETT);
+
     }
 
     @Test
@@ -138,15 +163,20 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(FORELDREPENGER, 200))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FORELDREPENGER, 200);
         assertThat(retter).containsEntry(BARE_FAR_RETT, 75);
         assertThat(retter).doesNotContainKey(FELLESPERIODE);
         assertThat(retter).doesNotContainKey(UFØREDAGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 200);
+        assertThat(retterMax).containsEntry(BARE_FAR_RETT, 75);
+        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
+        assertThat(retterMax).doesNotContainKey(UFØREDAGER);
     }
 
     @Test
-    void begge_wlb_tilkommet_tette() {
+    void begge_wlb_tilkommet_tette_redusert_dekningsgrad() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -156,12 +186,18 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
-        assertThat(retter).containsEntry(FELLESPERIODE, 90);
-        assertThat(retter).containsEntry(MØDREKVOTE, 95);
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
+        assertThat(retter).containsEntry(FELLESPERIODE, 80);
+        assertThat(retter).containsEntry(MØDREKVOTE, 75);
         assertThat(retter).containsEntry(TETTE_SAKER_MOR, 110);
         assertThat(retter).containsEntry(TETTE_SAKER_FAR, 40);
         assertThat(retter).doesNotContainKey(FORELDREPENGER);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 90);
+        assertThat(retterMax).containsEntry(MØDREKVOTE, 95);
+        assertThat(retterMax).containsEntry(TETTE_SAKER_MOR, 110);
+        assertThat(retterMax).containsEntry(TETTE_SAKER_FAR, 40);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -175,12 +211,18 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of(FORELDREPENGER, 280))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var retter = stønadskontoResultat.getStønadskontoer();
+        var retter = stønadskontoResultat.getStønadskontoerBeholdStønadsdager();
         assertThat(retter).containsEntry(FORELDREPENGER, 280);
         assertThat(retter).containsEntry(TETTE_SAKER_MOR, 40);
         assertThat(retter).doesNotContainKey(TETTE_SAKER_FAR);
         assertThat(retter).doesNotContainKey(FELLESPERIODE);
         assertThat(retter).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 280);
+        assertThat(retterMax).containsEntry(TETTE_SAKER_MOR, 40);
+        assertThat(retterMax).doesNotContainKey(TETTE_SAKER_FAR);
+        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
     }
 
 }
