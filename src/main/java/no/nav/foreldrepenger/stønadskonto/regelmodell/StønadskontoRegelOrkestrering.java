@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
 import java.util.Map;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.regler.BeregnKontoer;
@@ -24,19 +23,23 @@ public class StønadskontoRegelOrkestrering {
         var evaluation = beregnKontoer.evaluer(mellomregning);
         var evaluationJson = EvaluationSerializer.asJson(evaluation, StønadskontoVersion.STØNADSKONTO_VERSION, NareVersion.NARE_VERSION);
 
-        var stønadskontoer = mellomregning.getBeregnet();
+        var førFletting = mellomregning.getBeregnet();
+        var stønadskontoer = mellomregning.getFlettet().isEmpty() ? førFletting : mellomregning.getFlettet();
+        var stønadkontoerBeholdStønadsdager = mellomregning.getFlettetBeholdStønadsdager().isEmpty() ?
+            stønadskontoer : mellomregning.getFlettetBeholdStønadsdager();
         var antallFlerbarnsdager = hentAntallFlerbarnsdager(stønadskontoer);
         var antallPrematurDager = hentAntallPrematurDager(stønadskontoer);
 
-        return new StønadskontoResultat(stønadskontoer, antallFlerbarnsdager, evaluationJson, grunnlagJson, antallPrematurDager);
+        return new StønadskontoResultat(stønadskontoer, stønadkontoerBeholdStønadsdager, førFletting,
+            antallFlerbarnsdager, evaluationJson, grunnlagJson, antallPrematurDager);
     }
 
     private int hentAntallFlerbarnsdager(Map<StønadskontoKontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_FLERBARN)).orElse(0);
+        return kontoer.getOrDefault(StønadskontoKontotype.TILLEGG_FLERBARN, 0);
     }
 
     private int hentAntallPrematurDager(Map<StønadskontoKontotype, Integer> kontoer) {
-        return Optional.ofNullable(kontoer.get(StønadskontoKontotype.TILLEGG_PREMATUR)).orElse(0);
+        return kontoer.getOrDefault(StønadskontoKontotype.TILLEGG_PREMATUR, 0);
     }
 
     private String toJson(BeregnKontoerGrunnlag grunnlag) {

@@ -14,9 +14,13 @@ public class KontoerMellomregning {
 
     private final BeregnKontoerGrunnlag grunnlag;
 
+    private final List<Kontokonfigurasjon> kontokonfigurasjon = new ArrayList<>();
+
     private final Map<StønadskontoKontotype, Integer> beregnet = new EnumMap<>(StønadskontoKontotype.class);
 
-    private final List<Kontokonfigurasjon> kontokonfigurasjon = new ArrayList<>();
+    private final Map<StønadskontoKontotype, Integer> flettet = new EnumMap<>(StønadskontoKontotype.class);
+
+    private final Map<StønadskontoKontotype, Integer> flettetBeholdStønadsdager = new EnumMap<>(StønadskontoKontotype.class);
 
     public KontoerMellomregning(BeregnKontoerGrunnlag grunnlag) {
         this.grunnlag = grunnlag;
@@ -26,11 +30,19 @@ public class KontoerMellomregning {
         return grunnlag;
     }
 
+    List<Kontokonfigurasjon> getKontokonfigurasjon() {
+        return kontokonfigurasjon;
+    }
+
     public Map<StønadskontoKontotype, Integer> getBeregnet() {
         return beregnet;
     }
 
-    List<Kontokonfigurasjon> getKontokonfigurasjon() {
-        return kontokonfigurasjon;
+    public Map<StønadskontoKontotype, Integer> getFlettet() {
+        return flettet;
+    }
+
+    public Map<StønadskontoKontotype, Integer> getFlettetBeholdStønadsdager() {
+        return flettetBeholdStønadsdager;
     }
 }

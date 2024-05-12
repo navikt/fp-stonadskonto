@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.regler;
 
-import java.util.EnumMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -22,17 +22,26 @@ class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
 
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
-        Map<StønadskontoKontotype, Integer> kontoerMap = new EnumMap<>(StønadskontoKontotype.class);
-        mellomregning.getBeregnet().entrySet().stream()
-            .filter(e -> e.getValue() > 0)
-            .forEach(e -> kontoerMap.put(e.getKey(), e.getValue()));
-        mellomregning.getBeregnet().clear();
-        mellomregning.getBeregnet().putAll(kontoerMap);
+        fjernInnslag0(mellomregning.getBeregnet());
+        fjernInnslag0(mellomregning.getFlettet());
+        fjernInnslag0(mellomregning.getFlettetBeholdStønadsdager());
+
+        var sporing = mellomregning.getFlettet().isEmpty() ? mellomregning.getBeregnet() : mellomregning.getFlettet();
 
         var eval = ja();
-        eval.setEvaluationProperty(KONTOER, kontoerMap);
+        eval.setEvaluationProperty(KONTOER, sporing);
         return eval;
 
+    }
+
+    private static void fjernInnslag0(Map<StønadskontoKontotype, Integer> input) {
+        if (input.values().stream().anyMatch(v -> v <= 0)) {
+            var midlertidig = input.entrySet().stream()
+                .filter(e -> e.getValue() > 0)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            input.clear();
+            input.putAll(midlertidig);
+        }
     }
 
 }

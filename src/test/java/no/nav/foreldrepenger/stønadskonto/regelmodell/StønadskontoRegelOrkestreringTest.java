@@ -1054,7 +1054,7 @@ class StønadskontoRegelOrkestreringTest {
         assertThat(input.getDekningsgrad()).isEqualTo(Dekningsgrad.DEKNINGSGRAD_100);
         assertThat(input.getAntallBarn()).isEqualTo(1);
         assertThat(input.erFødsel()).isTrue();
-        assertThat(input.getFamiliehendelsesdato()).isEqualTo(DATO);
+        assertThat(input.getFamilieHendelseDato()).isEqualTo(DATO);
         assertThat(input.getFødselsdato()).isPresent();
         assertThat(input.getTidligereUtregning()).isEmpty();
         assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(DATO);
