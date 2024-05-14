@@ -74,10 +74,10 @@ class FletteKontoer extends LeafSpecification<KontoerMellomregning> {
         var foreldrepengerBegge = m1.containsKey(StønadskontoKontotype.FORELDREPENGER) &&
             m2.containsKey(StønadskontoKontotype.FORELDREPENGER);
         if (fellesperiodeBegge) {
-            return m1.get(StønadskontoKontotype.FELLESPERIODE) > m2.get(StønadskontoKontotype.FELLESPERIODE)
+            return m1.get(StønadskontoKontotype.FELLESPERIODE) >= m2.get(StønadskontoKontotype.FELLESPERIODE)
                 ? FletteKontoer::lhs : FletteKontoer::rhs;
         } else if (foreldrepengerBegge) {
-            return m1.get(StønadskontoKontotype.FORELDREPENGER) > m2.get(StønadskontoKontotype.FORELDREPENGER)
+            return m1.get(StønadskontoKontotype.FORELDREPENGER) >= m2.get(StønadskontoKontotype.FORELDREPENGER)
                 ? FletteKontoer::lhs : FletteKontoer::rhs;
         } else {
             return FletteKontoer::lhs;
