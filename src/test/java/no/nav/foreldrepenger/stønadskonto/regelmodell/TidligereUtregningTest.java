@@ -186,4 +186,32 @@ class TidligereUtregningTest {
         assertThat(retterMax).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
     }
 
+    @Test
+    void overgang_wlb_2024_dekning_80_prosent_begge_rett() {
+        var tidligere = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(Map.of())
+            .build();
+        var tidligereUtregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
+        assertThat(tidligereUtregnet).containsEntry(FELLESPERIODE, 90);
+        assertThat(tidligereUtregnet).containsEntry(MØDREKVOTE, 95);
+        assertThat(tidligereUtregnet).doesNotContainKey(FORELDREPENGER);
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(tidligereUtregnet)
+            .build();
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 101);
+        assertThat(retterMax).containsEntry(MØDREKVOTE, 95);
+        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+    }
+
 }
