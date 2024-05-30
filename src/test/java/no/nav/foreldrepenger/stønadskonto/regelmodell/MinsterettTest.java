@@ -21,7 +21,8 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 class MinsterettTest {
 
     private static final LocalDate FØR_WLB = LocalDate.of(2022, Month.JANUARY, 1);
-    private static final LocalDate ETTER_WLB_1 = LocalDate.now();
+    private static final LocalDate ETTER_WLB_1 = LocalDate.of(2022, Month.DECEMBER,1);
+    private static final LocalDate ETTER_WLB_2 = LocalDate.of(2024, Month.DECEMBER,1);
 
     private final StønadskontoRegelOrkestrering stønadskontoRegelOrkestrering = new StønadskontoRegelOrkestrering();
 
@@ -31,7 +32,7 @@ class MinsterettTest {
             .morHarUføretrygd(true)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
-            .fødselsdato(ETTER_WLB_1)
+            .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .build();
         fellesassert(grunnlag80, 10, 0, 0, 95, 0);
@@ -40,14 +41,14 @@ class MinsterettTest {
             .morHarUføretrygd(true)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
-            .fødselsdato(ETTER_WLB_1)
+            .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();
         fellesassert(grunnlag100, 10, 0, 0, 75, 0);
     }
 
     @Test
-    void wlb_bfhr_mor_ufør_flerbarn() {
+    void wlb_bfhr_mor_ufør_flerbarn_før_utvidelse() {
         var grunnlag80 = new BeregnKontoerGrunnlag.Builder()
             .antallBarn(2)
             .morHarUføretrygd(true)
@@ -70,7 +71,30 @@ class MinsterettTest {
     }
 
     @Test
-    void wlb_begge_rett() {
+    void wlb_bfhr_mor_ufør_flerbarn() {
+        var grunnlag80 = new BeregnKontoerGrunnlag.Builder()
+            .antallBarn(2)
+            .morHarUføretrygd(true)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+        fellesassert(grunnlag80, 10, 0, 0, 106 + 95, 0);
+
+        var grunnlag100 = new BeregnKontoerGrunnlag.Builder()
+            .antallBarn(4)
+            .morHarUføretrygd(true)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+        fellesassert(grunnlag100, 10, 0, 0, 230 + 75, 0);
+    }
+
+    @Test
+    void wlb_begge_rett_før_utvidelse() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .fødselsdato(ETTER_WLB_1)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
@@ -81,7 +105,18 @@ class MinsterettTest {
     }
 
     @Test
-    void wlb_bfhr() {
+    void wlb_begge_rett() {
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .brukerRolle(Brukerrolle.FAR)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .build();
+        fellesassert(grunnlag, 10, 0, 0, 0, 0);
+    }
+
+    @Test
+    void wlb_bfhr_før_utvidelse() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .fødselsdato(ETTER_WLB_1)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
@@ -89,6 +124,17 @@ class MinsterettTest {
             .brukerRolle(Brukerrolle.FAR)
             .build();
         fellesassert(grunnlag, 10, 0, 0, 40, 0);
+    }
+
+    @Test
+    void wlb_bfhr() {
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .build();
+        fellesassert(grunnlag, 10, 0, 0, 50, 0);
     }
 
     @Test
@@ -241,6 +287,30 @@ class MinsterettTest {
             .brukerRolle(Brukerrolle.FAR)
             .build();
         fellesassert(grunnlag, 10, 0, 0, 40, 0);
+    }
+
+    @Test
+    void regeldato_bfhr_2024_før() {
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .build();
+        fellesassert(grunnlag, 10, 0, 0, 40, 0);
+    }
+
+    @Test
+    void regeldato_bfhr_2024_etter() {
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_2)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .build();
+        fellesassert(grunnlag, 10, 0, 0, 50, 0);
     }
 
     @Test

@@ -26,7 +26,8 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 class TidligereUtregningTest {
 
     private static final LocalDate FØR_WLB = LocalDate.of(2022, Month.JANUARY, 1);
-    private static final LocalDate ETTER_WLB_1 = LocalDate.now();
+    private static final LocalDate ETTER_WLB_1 = LocalDate.of(2022, Month.DECEMBER,1);
+    private static final LocalDate ETTER_WLB_2 = LocalDate.of(2024, Month.DECEMBER,1);
 
     private final StønadskontoRegelOrkestrering stønadskontoRegelOrkestrering = new StønadskontoRegelOrkestrering();
 
@@ -152,8 +153,8 @@ class TidligereUtregningTest {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
-            .fødselsdato(ETTER_WLB_1.minusWeeks(40))
-            .familieHendelseDatoNesteSak(ETTER_WLB_1)
+            .fødselsdato(ETTER_WLB_2.minusWeeks(40))
+            .familieHendelseDatoNesteSak(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
@@ -171,8 +172,8 @@ class TidligereUtregningTest {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
-            .omsorgsovertakelseDato(ETTER_WLB_1.minusWeeks(40))
-            .familieHendelseDatoNesteSak(ETTER_WLB_1)
+            .omsorgsovertakelseDato(ETTER_WLB_2.minusWeeks(40))
+            .familieHendelseDatoNesteSak(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .tidligereUtregning(Map.of(FORELDREPENGER, 280))
             .build();

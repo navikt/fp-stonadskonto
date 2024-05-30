@@ -47,7 +47,7 @@ class StandardKonfigurasjonTest {
             parametre.forEach((key, value) -> {
                 var tl = value.stream()
                         .map(pv -> new LocalDateSegment<>(pv.fom(),
-                            pv.tom() == LocalDate.MAX ? LocalDate.now() : pv.tom(), pv.verdi()))
+                            pv.tom() == LocalDate.MAX ? LocalDate.now().plusYears(10) : pv.tom(), pv.verdi()))
                         .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
                 parameterTidslinjer.put(key, tl);
             });
