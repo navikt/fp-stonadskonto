@@ -24,7 +24,6 @@ class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         fjernInnslag0(mellomregning.getBeregnet());
         fjernInnslag0(mellomregning.getFlettet());
-        fjernInnslag0(mellomregning.getFlettetBeholdStønadsdager());
 
         var sporing = mellomregning.getFlettet().isEmpty() ? mellomregning.getBeregnet() : mellomregning.getFlettet();
 
