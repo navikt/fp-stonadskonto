@@ -335,4 +335,98 @@ class OvergangWLB2024Test {
         assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
+
+    @Test
+    void overgang_wlb_2024_bare_far_rett() {
+        var tidligere = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .termindato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .tidligereUtregning(Map.of())
+            .build();
+        var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 40);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .tidligereUtregning(utregnet)
+            .build();
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        utregnet = stønadskontoResultat.getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 50);
+        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+    }
+
+    @Test
+    void overgang_wlb_2024_bare_far_rett_80() {
+        var tidligere = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .termindato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(Map.of())
+            .build();
+        var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 250);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 40);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(utregnet)
+            .build();
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        utregnet = stønadskontoResultat.getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 261);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 50);
+        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+    }
+
+
+    @Test
+    void overgang_wlb_2024_bare_far_rett_uføre() {
+        var tidligere = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .termindato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .morHarUføretrygd(true)
+            .tidligereUtregning(Map.of())
+            .build();
+        var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 75);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .morHarUføretrygd(true)
+            .tidligereUtregning(utregnet)
+            .build();
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        utregnet = stønadskontoResultat.getStønadskontoer();
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
+        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 75);
+        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+    }
+
 }
