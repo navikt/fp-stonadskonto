@@ -129,7 +129,6 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_PREMATUR, ekstradager);
-        assertThat(stønadskontoResultat.getAntallPrematurDager()).isEqualTo(ekstradager);
     }
 
     @Test
@@ -149,7 +148,6 @@ class StønadskontoRegelOrkestreringTest {
         var ekstradager = PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
         var forventetForeldrepenger = 80 + 75 + 75 + ekstradager;
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, forventetForeldrepenger).containsEntry(TILLEGG_PREMATUR, ekstradager);
-        assertThat(stønadskontoResultat.getAntallPrematurDager()).isEqualTo(ekstradager);
     }
 
     @Test
@@ -166,9 +164,7 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).containsEntry(FLERBARNSDAGER, 85);
-        assertThat(stønadskontoResultat.getAntallFlerbarnsdager()).isEqualTo(85);
-        assertThat(stønadskontoResultat.getAntallPrematurDager()).isZero();
+        assertThat(stønadskontoer).containsEntry(FLERBARNSDAGER, 85).doesNotContainKey(TILLEGG_PREMATUR);
     }
 
     /*

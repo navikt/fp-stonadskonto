@@ -20,8 +20,6 @@ public class KontoerMellomregning {
 
     private final Map<StønadskontoKontotype, Integer> flettet = new EnumMap<>(StønadskontoKontotype.class);
 
-    private final Map<StønadskontoKontotype, Integer> flettetBeholdStønadsdager = new EnumMap<>(StønadskontoKontotype.class);
-
     public KontoerMellomregning(BeregnKontoerGrunnlag grunnlag) {
         this.grunnlag = grunnlag;
     }
@@ -42,7 +40,4 @@ public class KontoerMellomregning {
         return flettet;
     }
 
-    public Map<StønadskontoKontotype, Integer> getFlettetBeholdStønadsdager() {
-        return flettetBeholdStønadsdager;
-    }
 }
