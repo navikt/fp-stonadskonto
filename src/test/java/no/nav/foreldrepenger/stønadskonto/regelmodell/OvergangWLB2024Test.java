@@ -44,9 +44,9 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 90);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 90)
+            .containsEntry(MØDREKVOTE, 95)
+            .doesNotContainKey(FORELDREPENGER);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -56,10 +56,10 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 101);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 101)
+            .containsEntry(MØDREKVOTE, 95)
+            .doesNotContainKey(FORELDREPENGER)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -74,11 +74,11 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 90 + 105);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).containsEntry(FLERBARNSDAGER, 105);
-        assertThat(utregnet).containsEntry(TILLEGG_FLERBARN, 105);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 90 + 105)
+            .containsEntry(MØDREKVOTE, 95)
+            .containsEntry(FLERBARNSDAGER, 105)
+            .containsEntry(TILLEGG_FLERBARN, 105)
+            .doesNotContainKey(FORELDREPENGER);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -89,12 +89,12 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 101 + 106);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).containsEntry(FLERBARNSDAGER, 106);
-        assertThat(utregnet).containsEntry(TILLEGG_FLERBARN, 106);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 101 + 106)
+            .containsEntry(MØDREKVOTE, 95)
+            .containsEntry(FLERBARNSDAGER, 106)
+            .containsEntry(TILLEGG_FLERBARN, 106)
+            .doesNotContainKey(FORELDREPENGER)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -108,9 +108,9 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 90);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 90)
+            .containsEntry(MØDREKVOTE, 95)
+            .doesNotContainKey(FORELDREPENGER);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -121,11 +121,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FELLESPERIODE, 101 + 50);
-        assertThat(utregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(utregnet).containsEntry(TILLEGG_PREMATUR, 50);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FELLESPERIODE, 101 + 50)
+            .containsEntry(MØDREKVOTE, 95)
+            .containsEntry(TILLEGG_PREMATUR, 50)
+            .doesNotContainKey(FORELDREPENGER)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -139,8 +139,8 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 280);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -150,9 +150,9 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 291);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FAR_RUNDT_FØDSEL);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 291)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FAR_RUNDT_FØDSEL);
     }
 
     @Test
@@ -166,8 +166,8 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 280);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -177,8 +177,8 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 291);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 291)
+            .doesNotContainKey(FELLESPERIODE);
     }
 
     @Test
@@ -192,9 +192,9 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 250);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 40);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 250)
+            .containsEntry(BARE_FAR_RETT, 40)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -204,11 +204,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 261);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 50);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 261)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 50)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -222,8 +222,8 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 280);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -233,10 +233,10 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 291);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).doesNotContainKey(BARE_FAR_RETT);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 291)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .doesNotContainKey(BARE_FAR_RETT);
     }
 
     @Test
@@ -251,9 +251,9 @@ class OvergangWLB2024Test {
             .morHarUføretrygd(true)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 250);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 95);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 250)
+            .containsEntry(BARE_FAR_RETT, 95)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -264,11 +264,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 261);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 95);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 261)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 95)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -283,9 +283,9 @@ class OvergangWLB2024Test {
             .antallBarn(2)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 250 + 105);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 105);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 250 + 105)
+            .containsEntry(BARE_FAR_RETT, 105)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -296,11 +296,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 261 + 106);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 106);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 261 + 106)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 106)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
     @Test
@@ -315,9 +315,9 @@ class OvergangWLB2024Test {
             .antallBarn(3)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 250 + 280);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 280);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 250 + 280)
+            .containsEntry(BARE_FAR_RETT, 280)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -328,11 +328,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 261 + 288);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 288);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 261 + 288)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 288)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
 
@@ -347,9 +347,9 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 40);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
+            .containsEntry(BARE_FAR_RETT, 40)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -359,41 +359,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 50);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
-    }
-
-    @Test
-    void overgang_wlb_2024_bare_far_rett_80() {
-        var tidligere = new BeregnKontoerGrunnlag.Builder()
-            .regelvalgsdato(ETTER_WLB_1)
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .termindato(ETTER_WLB_2)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
-            .build();
-        var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 250);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 40);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        var grunnlag = new BeregnKontoerGrunnlag.Builder()
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .fødselsdato(ETTER_WLB_2)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
-            .build();
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 261);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 50);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 50)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
 
@@ -409,9 +379,9 @@ class OvergangWLB2024Test {
             .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 75);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
+            .containsEntry(BARE_FAR_RETT, 75)
+            .doesNotContainKey(FELLESPERIODE);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -422,11 +392,11 @@ class OvergangWLB2024Test {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
-        assertThat(utregnet).containsEntry(FORELDREPENGER, 200);
-        assertThat(utregnet).doesNotContainKey(FELLESPERIODE);
-        assertThat(utregnet).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
-        assertThat(utregnet).containsEntry(BARE_FAR_RETT, 75);
-        assertThat(utregnet).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
+            .doesNotContainKey(FELLESPERIODE)
+            .doesNotContainKey(FORELDREPENGER_FØR_FØDSEL)
+            .containsEntry(BARE_FAR_RETT, 75)
+            .containsEntry(FAR_RUNDT_FØDSEL, 10);
     }
 
 }

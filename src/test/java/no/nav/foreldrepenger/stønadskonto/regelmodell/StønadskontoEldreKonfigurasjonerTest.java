@@ -671,7 +671,7 @@ class StønadskontoEldreKonfigurasjonerTest {
     void gammel_begge_rett() {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
-            .brukerRolle(Brukerrolle.FAR)
+            .brukerRolle(Brukerrolle.MOR)
             .fødselsdato(FØR_WLB)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .build();

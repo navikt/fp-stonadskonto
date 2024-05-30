@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
@@ -28,8 +29,7 @@ public class KonfigurasjonBuilder {
         var nyParameter = new Parameter(dekningsgrad, fom, tom, verdi);
         var parameterListe = parameterMap.get(parametertype);
         if (parameterListe == null) {
-            Collection<Parameter> coll = new ArrayList<>();
-            coll.add(nyParameter);
+            Collection<Parameter> coll = new ArrayList<>(List.of(nyParameter));
             parameterMap.put(parametertype, coll);
         } else {
             var overlapp = parameterListe.stream().anyMatch(nyParameter::overlapper);
