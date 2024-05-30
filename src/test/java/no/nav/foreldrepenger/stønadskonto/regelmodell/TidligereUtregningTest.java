@@ -180,9 +180,7 @@ class TidligereUtregningTest {
             .tidligereUtregning(Map.of())
             .build();
         var tidligereUtregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
-        assertThat(tidligereUtregnet).containsEntry(FELLESPERIODE, 90);
-        assertThat(tidligereUtregnet).containsEntry(MØDREKVOTE, 95);
-        assertThat(tidligereUtregnet).doesNotContainKey(FORELDREPENGER);
+        assertThat(tidligereUtregnet).containsEntry(FELLESPERIODE, 90).containsEntry(MØDREKVOTE, 95).doesNotContainKey(FORELDREPENGER);
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
