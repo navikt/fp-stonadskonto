@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +31,21 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
 
+
+/**
+ * Dekker 42 av 60 mulige cases - dimensjoner
+ * - Dekningsgrad 100/80
+ * - Rettighet: Begge, Bare mor rett, Mor aleneomsorg, Bare far rett, Far aleneomsorg
+ * - Fødsel eller adopsjon
+ * - Barn: 1, 2, 3+
+ *
+ * Mangler
+ * - 3 stk Fødsel Mor aleneomsorg 100% - dekkes av fødsel, bare mor rett 100%
+ * - 3 stk Adopsjon bare mor rett 100% - dekkes av adopsjon, aleneomsorg 100%
+ * - 3 stk Fødsel Mor aleneomsorg 80% - dekkes av fødsel, bare mor rett 80%
+ * - 3 stk Adopsjon bare mor rett 800% - dekkes av adopsjon, aleneomsorg 80%
+ * - 6 stk adopsjon far aleneomsorg 100% og 80% - dekkes av fødsel for samme tilfelle
+ */
 class StønadskontoRegelOrkestreringTest {
 
     private static final LocalDate PREMATUR = LocalDate.of(2019, Month.JULY, 1);
@@ -64,6 +80,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
     @Test
@@ -84,6 +101,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
     @Test
@@ -104,6 +122,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
 
@@ -128,6 +147,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_PREMATUR, ekstradager);
+        assertSumDager(stønadskontoer, 245 + ekstradager);
     }
 
     @Test
@@ -146,6 +166,7 @@ class StønadskontoRegelOrkestreringTest {
         var ekstradager = PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
         var forventetForeldrepenger = 80 + 75 + 75 + ekstradager;
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, forventetForeldrepenger).containsEntry(TILLEGG_PREMATUR, ekstradager);
+        assertSumDager(stønadskontoer, 230 + ekstradager);
     }
 
     @Test
@@ -162,6 +183,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).containsEntry(FLERBARNSDAGER, 85).doesNotContainKey(TILLEGG_PREMATUR);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
@@ -184,6 +206,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 80).containsEntry(FEDREKVOTE, 75).containsEntry(MØDREKVOTE, 75);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
@@ -212,6 +235,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306);
     }
 
 
@@ -235,6 +259,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 101).containsEntry(FEDREKVOTE, 95).containsEntry(MØDREKVOTE, 95);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
@@ -265,6 +290,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 230)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245 + 230);
     }
 
     /*
@@ -292,6 +318,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 230)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
@@ -322,6 +349,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FLERBARNSDAGER, 288)
             .containsEntry(TILLEGG_FLERBARN, 288)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306 + 288);
     }
 
     /*
@@ -349,6 +377,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FLERBARNSDAGER, 288)
             .containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
@@ -379,6 +408,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 85)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
@@ -406,6 +436,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 85)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
@@ -436,6 +467,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FLERBARNSDAGER, 106)
             .containsEntry(TILLEGG_FLERBARN, 106)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306 + 106);
     }
 
     /*
@@ -463,6 +495,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FLERBARNSDAGER, 106)
             .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 291 + 106);
     }
 
     /*
@@ -483,6 +516,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertSumDager(stønadskontoer, 245);
     }
 
     /*
@@ -502,6 +536,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 75 + 75);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
@@ -522,6 +557,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertSumDager(stønadskontoer, 306);
     }
 
     /*
@@ -541,6 +577,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 291);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
@@ -562,6 +599,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
@@ -582,6 +620,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
@@ -603,6 +642,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 106).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 306 + 106);
     }
 
     /*
@@ -623,6 +663,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291 + 106)
             .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 291 + 106);
     }
 
     /*
@@ -644,6 +685,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 245 + 230);
     }
 
     /*
@@ -664,6 +706,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
@@ -685,6 +728,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 306 + 288);
     }
 
     /*
@@ -704,6 +748,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
@@ -723,6 +768,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 75 + 75).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
@@ -742,6 +788,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
@@ -761,6 +808,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 230).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
@@ -780,6 +828,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(TILLEGG_FLERBARN, 288).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
@@ -799,6 +848,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 85).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
@@ -818,6 +868,144 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 106).containsEntry(TILLEGG_FLERBARN, 106).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291 + 106);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 100% dekningsgrad.
+       Foreldrepenger: 40 uker (200 stønadsdager) med 10 uker minsterett
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 50);
+        assertSumDager(stønadskontoer, 200);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 80% dekningsgrad.
+       Foreldrepenger: 52,2 uker (261 stønadsdager) med 10 uker minsterett
+   */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 261).containsEntry(BARE_FAR_RETT, 50);
+        assertSumDager(stønadskontoer, 261);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 100% dekningsgrad. 3 barn.
+       Foreldrepenger: 40 uker (200 stønadsdager) + 46 uker (230 stønadsdager)
+       Flerbarnsdager: 46 uker (230 stønadsdager)
+       Minsterett: 10 uker
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(3)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 230)
+            .containsEntry(BARE_FAR_RETT, 230);
+        assertSumDager(stønadskontoer, 200 + 230);
+    }
+
+    /*
+    Far har rett til Foreldrepenger. 80% dekningsgrad. 3 barn.
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 57,6 uker (288 stønadsdager)
+    Flerbarnsdager: 57,6 uker (288 stønadsdager)
+    Minsterett: 57,6 uker (288 stønadsdager)
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(3)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 261 + 288)
+            .containsEntry(TILLEGG_FLERBARN, 288)
+            .containsEntry(BARE_FAR_RETT, 288);
+        assertSumDager(stønadskontoer, 261 + 288);
+    }
+
+    /*
+   Far har rett til Foreldrepenger. 100% dekningsgrad. 2 barn.
+   Foreldrepenger: 40 uker (200 stønadsdager) + 17 uker (85 stønadsdager)
+   Minsterett: 17 uker (85 stønadsdager)
+*/
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(2)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 85)
+            .containsEntry(BARE_FAR_RETT, 85);
+        assertSumDager(stønadskontoer, 200 + 85);
+    }
+
+    /*
+    Far har rett til Foreldrepenger. 80% dekningsgrad. 2 barn.
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 21,2 uker (106 stønadsdager)
+    Minsterett: 21,2 uker (106 stønadsdager)
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(2)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 261 + 106)
+            .containsEntry(TILLEGG_FLERBARN, 106)
+            .containsEntry(BARE_FAR_RETT, 106);
+        assertSumDager(stønadskontoer, 261 + 106);
     }
 
     /*
@@ -837,6 +1025,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 50).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200);
     }
 
     /*
@@ -856,6 +1045,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 261).containsEntry(BARE_FAR_RETT, 50).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261);
     }
 
     /*
@@ -880,6 +1070,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 230)
             .containsEntry(BARE_FAR_RETT, 230)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200 + 230);
     }
 
     /*
@@ -905,6 +1096,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 288)
             .containsEntry(BARE_FAR_RETT, 288)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261 + 288);
     }
 
     /*
@@ -929,6 +1121,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 85)
             .containsEntry(BARE_FAR_RETT, 85)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200 + 85);
     }
 
     /*
@@ -953,6 +1146,7 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 106)
             .containsEntry(BARE_FAR_RETT, 106)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261 + 106);
     }
 
     @SuppressWarnings("unchecked")
@@ -1017,6 +1211,14 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).doesNotContainKey(FLERBARNSDAGER);
+    }
+
+    static void assertSumDager(Map<StønadskontoKontotype, Integer> utregning, int dager) {
+        var utregnetsum = utregning.entrySet().stream()
+            .filter(e -> e.getKey().erStønadsdager())
+            .map(Map.Entry::getValue)
+            .reduce(Integer::sum).orElse(0);
+        assertThat(utregnetsum).isEqualTo(dager);
     }
 
 }

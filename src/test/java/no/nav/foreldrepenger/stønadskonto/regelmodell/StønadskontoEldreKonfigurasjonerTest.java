@@ -12,6 +12,7 @@ import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKonto
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TETTE_SAKER_MOR;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TILLEGG_FLERBARN;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.UFØREDAGER;
+import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoRegelOrkestreringTest.assertSumDager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -58,6 +59,8 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 295);
+
     }
 
     /*
@@ -80,6 +83,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 90).containsEntry(FEDREKVOTE, 95).containsEntry(MØDREKVOTE, 95);
+        assertSumDager(stønadskontoer, 280);
     }
 
     /*
@@ -110,6 +114,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(FLERBARNSDAGER, 280)
             .containsEntry(TILLEGG_FLERBARN, 280)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 295 + 280);
     }
 
     /*
@@ -137,6 +142,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FLERBARNSDAGER, 280)
             .containsEntry(TILLEGG_FLERBARN, 280);
+        assertSumDager(stønadskontoer, 280 + 280);
     }
 
     /*
@@ -167,6 +173,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(FLERBARNSDAGER, 105)
             .containsEntry(TILLEGG_FLERBARN, 105)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 295 + 105);
     }
 
     /*
@@ -194,6 +201,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FLERBARNSDAGER, 105)
             .containsEntry(TILLEGG_FLERBARN, 105);
+        assertSumDager(stønadskontoer, 280 + 105);
     }
 
     /*
@@ -214,6 +222,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 280).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertSumDager(stønadskontoer, 295);
     }
 
     /*
@@ -233,6 +242,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 280);
+        assertSumDager(stønadskontoer, 280);
     }
 
     /*
@@ -254,6 +264,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 280 + 105).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 105);
+        assertSumDager(stønadskontoer, 295 + 105);
     }
 
     /*
@@ -274,6 +285,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 280 + 105)
             .containsEntry(TILLEGG_FLERBARN, 105);
+        assertSumDager(stønadskontoer, 280 + 105);
     }
 
     /*
@@ -295,6 +307,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 280 + 280).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 280);
+        assertSumDager(stønadskontoer, 295 + 280);
     }
 
     /*
@@ -314,6 +327,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 280 + 280).containsEntry(TILLEGG_FLERBARN, 280);
+        assertSumDager(stønadskontoer, 280 + 280);
     }
 
     /*
@@ -333,6 +347,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 280).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 280);
     }
 
     /*
@@ -352,6 +367,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 280 + 280).containsEntry(TILLEGG_FLERBARN, 280).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 280 + 280);
     }
 
     /*
@@ -371,6 +387,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 280 + 105).containsEntry(TILLEGG_FLERBARN, 105).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 280 + 105);
     }
 
     /*
@@ -390,6 +407,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200);
     }
 
     /*
@@ -409,6 +427,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 250).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 250);
     }
 
     /*
@@ -429,6 +448,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75).containsEntry(FLERBARNSDAGER, 230).containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 200 + 230);
     }
 
     /*
@@ -449,6 +469,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75).containsEntry(FLERBARNSDAGER, 280).containsEntry(TILLEGG_FLERBARN, 280);
+        assertSumDager(stønadskontoer, 250 + 280);
     }
 
     /*
@@ -473,6 +494,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(TILLEGG_FLERBARN, 280)
             .containsEntry(BARE_FAR_RETT, 280)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 250 + 280);
     }
 
     /*
@@ -495,6 +517,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
             .containsEntry(FLERBARNSDAGER, 85)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 200 + 85);
     }
 
     /*
@@ -515,6 +538,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75).containsEntry(FLERBARNSDAGER, 105).containsEntry(TILLEGG_FLERBARN, 105);
+        assertSumDager(stønadskontoer, 250 + 105);
     }
 
     /*
@@ -539,6 +563,7 @@ class StønadskontoEldreKonfigurasjonerTest {
             .containsEntry(TILLEGG_FLERBARN, 105)
             .containsEntry(BARE_FAR_RETT, 105)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 250 + 105);
     }
 
 
@@ -555,6 +580,7 @@ class StønadskontoEldreKonfigurasjonerTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).containsKey(FLERBARNSDAGER);
+        assertSumDager(stønadskontoer, 200 + 85);
     }
 
     @Test
