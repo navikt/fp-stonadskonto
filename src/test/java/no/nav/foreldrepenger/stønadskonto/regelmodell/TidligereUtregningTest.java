@@ -26,7 +26,8 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 class TidligereUtregningTest {
 
     private static final LocalDate FØR_WLB = LocalDate.of(2022, Month.JANUARY, 1);
-    private static final LocalDate ETTER_WLB_1 = LocalDate.now();
+    private static final LocalDate ETTER_WLB_1 = LocalDate.of(2022, Month.DECEMBER,1);
+    private static final LocalDate ETTER_WLB_2 = LocalDate.of(2024, Month.DECEMBER,1);
 
     private final StønadskontoRegelOrkestrering stønadskontoRegelOrkestrering = new StønadskontoRegelOrkestrering();
 
@@ -41,8 +42,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FORELDREPENGER, 230);
-        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 230).doesNotContainKey(FELLESPERIODE);
     }
 
     @Test
@@ -56,8 +56,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FELLESPERIODE, 80);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 80).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -72,9 +71,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FELLESPERIODE, 120);
-        assertThat(retterMax).containsEntry(StønadskontoKontotype.TILLEGG_PREMATUR, 40);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 120).containsEntry(StønadskontoKontotype.TILLEGG_PREMATUR, 40).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -89,9 +86,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FELLESPERIODE, 120);
-        assertThat(retterMax).containsEntry(FAR_RUNDT_FØDSEL, 10);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 120).containsEntry(FAR_RUNDT_FØDSEL, 10).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -105,9 +100,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FELLESPERIODE, 90);
-        assertThat(retterMax).containsEntry(MØDREKVOTE, 95);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 90).containsEntry(MØDREKVOTE, 95).doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -122,10 +115,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FORELDREPENGER, 200);
-        assertThat(retterMax).containsEntry(UFØREDAGER, 75);
-        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
-        assertThat(retterMax).doesNotContainKey(BARE_FAR_RETT);
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 200).containsEntry(UFØREDAGER, 75).doesNotContainKey(FELLESPERIODE).doesNotContainKey(BARE_FAR_RETT);
 
     }
 
@@ -141,10 +131,7 @@ class TidligereUtregningTest {
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FORELDREPENGER, 200);
-        assertThat(retterMax).containsEntry(BARE_FAR_RETT, 75);
-        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
-        assertThat(retterMax).doesNotContainKey(UFØREDAGER);
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 200).containsEntry(BARE_FAR_RETT, 75).doesNotContainKey(FELLESPERIODE).doesNotContainKey(UFØREDAGER);
     }
 
     @Test
@@ -152,18 +139,18 @@ class TidligereUtregningTest {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
-            .fødselsdato(ETTER_WLB_1.minusWeeks(40))
-            .familieHendelseDatoNesteSak(ETTER_WLB_1)
+            .fødselsdato(ETTER_WLB_2.minusWeeks(40))
+            .familieHendelseDatoNesteSak(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .tidligereUtregning(Map.of(MØDREKVOTE, 75, FEDREKVOTE, 75, FELLESPERIODE, 80, FORELDREPENGER_FØR_FØDSEL, 15))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FELLESPERIODE, 90);
-        assertThat(retterMax).containsEntry(MØDREKVOTE, 95);
-        assertThat(retterMax).containsEntry(TETTE_SAKER_MOR, 110);
-        assertThat(retterMax).containsEntry(TETTE_SAKER_FAR, 40);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER);
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 90)
+            .containsEntry(MØDREKVOTE, 95)
+            .containsEntry(TETTE_SAKER_MOR, 110)
+            .containsEntry(TETTE_SAKER_FAR, 40)
+            .doesNotContainKey(FORELDREPENGER);
     }
 
     @Test
@@ -171,18 +158,39 @@ class TidligereUtregningTest {
         var grunnlag = new BeregnKontoerGrunnlag.Builder()
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
-            .omsorgsovertakelseDato(ETTER_WLB_1.minusWeeks(40))
-            .familieHendelseDatoNesteSak(ETTER_WLB_1)
+            .omsorgsovertakelseDato(ETTER_WLB_2.minusWeeks(40))
+            .familieHendelseDatoNesteSak(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .tidligereUtregning(Map.of(FORELDREPENGER, 280))
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var retterMax = stønadskontoResultat.getStønadskontoer();
-        assertThat(retterMax).containsEntry(FORELDREPENGER, 280);
-        assertThat(retterMax).containsEntry(TETTE_SAKER_MOR, 40);
-        assertThat(retterMax).doesNotContainKey(TETTE_SAKER_FAR);
-        assertThat(retterMax).doesNotContainKey(FELLESPERIODE);
-        assertThat(retterMax).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+        assertThat(retterMax).containsEntry(FORELDREPENGER, 280).containsEntry(TETTE_SAKER_MOR, 40)
+            .doesNotContainKey(TETTE_SAKER_FAR).doesNotContainKey(FELLESPERIODE).doesNotContainKey(FORELDREPENGER_FØR_FØDSEL);
+    }
+
+    @Test
+    void overgang_wlb_2024_dekning_80_prosent_begge_rett() {
+        var tidligere = new BeregnKontoerGrunnlag.Builder()
+            .regelvalgsdato(ETTER_WLB_1)
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(Map.of())
+            .build();
+        var tidligereUtregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
+        assertThat(tidligereUtregnet).containsEntry(FELLESPERIODE, 90).containsEntry(MØDREKVOTE, 95).doesNotContainKey(FORELDREPENGER);
+        var grunnlag = new BeregnKontoerGrunnlag.Builder()
+            .rettighetType(Rettighetstype.BEGGE_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .fødselsdato(ETTER_WLB_2)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .tidligereUtregning(tidligereUtregnet)
+            .build();
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var retterMax = stønadskontoResultat.getStønadskontoer();
+        assertThat(retterMax).containsEntry(FELLESPERIODE, 101).containsEntry(MØDREKVOTE, 95).doesNotContainKey(FORELDREPENGER);
     }
 
 }

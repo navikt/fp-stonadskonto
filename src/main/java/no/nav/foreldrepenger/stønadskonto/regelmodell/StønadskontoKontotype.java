@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
+import java.util.Set;
+
 public enum StønadskontoKontotype {
 
     // Ordinære stønadsdager. Enten foreldrepenger eller kvote+fellesperiode.
@@ -25,5 +27,11 @@ public enum StønadskontoKontotype {
     // Annet
     FAR_RUNDT_FØDSEL // Gir periode og tillater 200% samtidig uttak Jfr 14-10 sjette ledd
     ;
+
+    private static final Set<StønadskontoKontotype> STØNADSDAGER = Set.of(FELLESPERIODE, FEDREKVOTE, MØDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL);
+
+    public boolean erStønadsdager() {
+        return STØNADSDAGER.contains(this);
+    }
 
 }

@@ -40,8 +40,4 @@ public class Stønadsdager {
         return Optional.ofNullable(regelverksdato).orElse(familieHendelseDato);
     }
 
-    private LocalDate getRegelverksdato(LocalDate familieHendelseDato1, LocalDate familieHendelseDato2) {
-        return Optional.ofNullable(regelverksdato).or(() -> Optional.ofNullable(familieHendelseDato1)).orElse(familieHendelseDato2);
-    }
-
 }

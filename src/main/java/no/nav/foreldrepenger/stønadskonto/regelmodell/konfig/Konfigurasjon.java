@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.konfig;
 
 import static java.time.Month.AUGUST;
 import static java.time.Month.JANUARY;
+import static java.time.Month.JULY;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad.DEKNINGSGRAD_100;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad.DEKNINGSGRAD_80;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.konfig.Parametertype.BARE_FAR_RETT_DAGER_MINSTERETT;
@@ -34,6 +35,9 @@ public class Konfigurasjon {
     private static final LocalDate DATO_VEDTAK = LocalDate.of(2019, JANUARY, 1);
     private static final LocalDate DATO_MINSTERETT_1 = LocalDate.of(2022, AUGUST, 2);
     private static final LocalDate DAG_FØR_MINSTERETT_1 = DATO_MINSTERETT_1.minusDays(1);
+    private static final LocalDate DATO_UTLIGNE_80 = LocalDate.of(2024, JULY, 1);
+    private static final LocalDate DAG_FØR_UTLIGNE_80 = DATO_UTLIGNE_80.minusDays(1);
+    private static final LocalDate DATO_MINSTERETT_2 = LocalDate.of(2024, AUGUST, 2);
 
 
     public static final Konfigurasjon STANDARD = KonfigurasjonBuilder.create()
@@ -54,28 +58,34 @@ public class Konfigurasjon {
         .leggTilParameter(FEDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 95)
         .leggTilParameter(FEDREKVOTE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 75)
 
-        .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, null, 90)
+        .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_UTLIGNE_80, null, 101)
+        .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_VEDTAK, DAG_FØR_UTLIGNE_80, 90)
         .leggTilParameter(FELLESPERIODE_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DATO_VEDTAK.minusDays(1), 130)
 
         .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
-        .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
+        .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_UTLIGNE_80, null, 291)
+        .leggTilParameter(FORELDREPENGER_MOR_ELLER_ALENEOMSORG_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_UTLIGNE_80, 280)
         .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 200)
-        .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 250)
+        .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_80, DATO_UTLIGNE_80, null, 261)
+        .leggTilParameter(FORELDREPENGER_BARE_FAR_RETT_DAGER, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_UTLIGNE_80, 250)
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 15)
         .leggTilParameter(FORELDREPENGER_FØR_FØDSEL, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 15)
 
         // Utvidelse og dager uten aktivitetskrav flerbarn
         .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 85)
-        .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 105)
+        .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_80, DATO_UTLIGNE_80, null, 106)
+        .leggTilParameter(EKSTRA_DAGER_TO_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_UTLIGNE_80, 105)
         .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_100, DATO_TIDLIGST, null, 230)
-        .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, null, 280)
+        .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_80, DATO_UTLIGNE_80, null, 288)
+        .leggTilParameter(EKSTRA_DAGER_TRE_ELLER_FLERE_BARN, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_UTLIGNE_80, 280)
 
         // Rettigheter 14-14 bare far rett - minsterett eller dager uten aktivitetskrav
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_100, DATO_MINSTERETT_1, null, 0)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_80, DATO_MINSTERETT_1, null, 0)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_100, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 75)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_UTEN_AKTIVITETSKRAV, DEKNINGSGRAD_80, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 95)
-        .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_MINSTERETT_1, null, 40)
+        .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_MINSTERETT_2, null, 50)
+        .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_MINSTERETT_1, DATO_MINSTERETT_2.minusDays(1), 40)
         .leggTilParameter(BARE_FAR_RETT_DAGER_MINSTERETT, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_100, DATO_MINSTERETT_1, null, 75)
         .leggTilParameter(BARE_FAR_RETT_MOR_UFØR_DAGER_MINSTERETT, DEKNINGSGRAD_100, DATO_TIDLIGST, DAG_FØR_MINSTERETT_1, 0)

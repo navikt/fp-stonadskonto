@@ -35,11 +35,8 @@ class OpprettKontoer extends LeafSpecification<KontoerMellomregning> {
 
         // Legg til utvidelser / tilleggsdager på fellesperiode eller foreldrepenger
         if (tilleggFlerbarn + tilleggPrematur > 0) {
-            if (kontoerMap.containsKey(StønadskontoKontotype.FELLESPERIODE)) {
-                kontoerMap.put(StønadskontoKontotype.FELLESPERIODE, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoKontotype.FELLESPERIODE));
-            } else if (kontoerMap.containsKey(StønadskontoKontotype.FORELDREPENGER)) {
-                kontoerMap.put(StønadskontoKontotype.FORELDREPENGER, tilleggFlerbarn + tilleggPrematur + kontoerMap.get(StønadskontoKontotype.FORELDREPENGER));
-            }
+            kontoerMap.computeIfPresent(StønadskontoKontotype.FELLESPERIODE, (k, v) -> tilleggFlerbarn + tilleggPrematur + v);
+            kontoerMap.computeIfPresent(StønadskontoKontotype.FORELDREPENGER, (k, v) -> tilleggFlerbarn + tilleggPrematur + v);
         }
 
         var beregnet = mellomregning.getBeregnet();

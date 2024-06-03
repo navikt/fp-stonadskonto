@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,10 +31,25 @@ import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
 
+
+/**
+ * Dekker 42 av 60 mulige cases - dimensjoner
+ * - Dekningsgrad 100/80
+ * - Rettighet: Begge, Bare mor rett, Mor aleneomsorg, Bare far rett, Far aleneomsorg
+ * - Fødsel eller adopsjon
+ * - Barn: 1, 2, 3+
+ *
+ * Mangler
+ * - 3 stk Fødsel Mor aleneomsorg 100% - dekkes av fødsel, bare mor rett 100%
+ * - 3 stk Adopsjon bare mor rett 100% - dekkes av adopsjon, aleneomsorg 100%
+ * - 3 stk Fødsel Mor aleneomsorg 80% - dekkes av fødsel, bare mor rett 80%
+ * - 3 stk Adopsjon bare mor rett 800% - dekkes av adopsjon, aleneomsorg 80%
+ * - 6 stk adopsjon far aleneomsorg 100% og 80% - dekkes av fødsel for samme tilfelle
+ */
 class StønadskontoRegelOrkestreringTest {
 
-    private static final LocalDate DATO = LocalDate.now();
-    private static final LocalDate FØR_WLB = LocalDate.of(2022, Month.JULY, 1);
+    private static final LocalDate PREMATUR = LocalDate.of(2019, Month.JULY, 1);
+    private static final LocalDate ETTER_WLB_2 = LocalDate.of(2024, Month.DECEMBER,1);
 
     private final StønadskontoRegelOrkestrering stønadskontoRegelOrkestrering = new StønadskontoRegelOrkestrering();
 
@@ -49,7 +65,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -64,12 +80,13 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
     @Test
     void fødsel_far_har_rett_innenlands_annen_europeisk_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -84,12 +101,13 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
     @Test
     void fødsel_mor_har_rett_innenlands_annen_europeisk_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -104,15 +122,15 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245);
     }
 
 
     @Test
     void skal_legge_til_prematurdager_på_fellesperiode() {
-        var fødselsdato = LocalDate.of(2019, 7, 1);
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(fødselsdato)
-            .termindato(fødselsdato.plusWeeks(7).plusDays(4))
+            .fødselsdato(PREMATUR)
+            .termindato(PREMATUR.plusWeeks(7).plusDays(4))
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -129,14 +147,14 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_PREMATUR, ekstradager);
+        assertSumDager(stønadskontoer, 245 + ekstradager);
     }
 
     @Test
     void skal_legge_til_prematurdager_på_foreldrepenger() {
-        var fødselsdato = LocalDate.of(2019, 7, 1);
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(fødselsdato)
-            .termindato(fødselsdato.plusWeeks(8))
+            .fødselsdato(PREMATUR)
+            .termindato(PREMATUR.plusWeeks(8))
             .antallBarn(1)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -148,14 +166,14 @@ class StønadskontoRegelOrkestreringTest {
         var ekstradager = PrematurukerUtil.beregnPrematurdager(grunnlag.getFødselsdato().get(), grunnlag.getTermindato().get());
         var forventetForeldrepenger = 80 + 75 + 75 + ekstradager;
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, forventetForeldrepenger).containsEntry(TILLEGG_PREMATUR, ekstradager);
+        assertSumDager(stønadskontoer, 230 + ekstradager);
     }
 
     @Test
     void skal_ikke_legge_til_prematurdager_på_flerbarnsdager() {
-        var fødselsdato = LocalDate.of(2019, 7, 1);
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(fødselsdato)
-            .termindato(fødselsdato.plusWeeks(7).plusDays(1))
+            .fødselsdato(PREMATUR)
+            .termindato(PREMATUR.plusWeeks(7).plusDays(1))
             .antallBarn(2)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -165,6 +183,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).containsEntry(FLERBARNSDAGER, 85).doesNotContainKey(TILLEGG_PREMATUR);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
@@ -177,7 +196,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -187,20 +206,21 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 80).containsEntry(FEDREKVOTE, 75).containsEntry(MØDREKVOTE, 75);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
-       Totale stønadskonto: - 59 uker (295 stønadsdager)
+       Totale stønadskonto: - 61,2 uker (306 stønadsdager)
        Stønadskonto fordeler seg slik:
-       - Fellesperiode: 26 uker (130 stønadsdager)
-       - Fedrekovte: 15 uker (75 stønadsdager)
-       - Mødrekvote: 15 uker (75 stønadsdager)
+       - Fellesperiode: 20,2 uker (101 stønadsdager)
+       - Fedrekovte: 19 uker (95 stønadsdager)
+       - Mødrekvote: 19 uker (95 stønadsdager)
        - Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
-   */
+    */
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -210,25 +230,26 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(5)
-            .containsEntry(FELLESPERIODE, 90)
+            .containsEntry(FELLESPERIODE, 101)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306);
     }
 
 
     /*
         Totale stønadskonto: - 56 uker (280 stønadsdager)
         Stønadskonto fordeler seg slik:
-        - Fellesperiode: 26 uker (130 stønadsdager)
-        - Fedrekovte: 15 uker (75 stønadsdager)
-        - Mødrekvote: 15 uker (75 stønadsdager)
+        - Fellesperiode: 20,11 uker (101 stønadsdager)
+        - Fedrekovte: 19 uker (95 stønadsdager)
+        - Mødrekvote: 19 uker (95 stønadsdager)
     */
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -237,12 +258,12 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 90).containsEntry(FEDREKVOTE, 95).containsEntry(MØDREKVOTE, 95);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FELLESPERIODE, 101).containsEntry(FEDREKVOTE, 95).containsEntry(MØDREKVOTE, 95);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
         Totale stønadskonto:  - 49 uker  (245 stønadsdager)
-        NB! Samtidig uttak skal være mulig 46 uker (230 stønadsdager)
         Stønadskonto fordeler seg slik:
         - Fellesperiode: 16 uker (80 stønadsdager) + 46 uker (230 stønadsdager)
         - Fedrekovte: 15 uker (75 stønadsdager)
@@ -252,7 +273,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -269,11 +290,11 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 230)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245 + 230);
     }
 
     /*
        Totale stønadskonto:  - 46 uker  (230 stønadsdager)
-       NB! Samtidig uttak skal være mulig 46 uker (230 stønadsdager)
        Stønadskonto fordeler seg slik:
        - Fellesperiode: 16 uker (80 stønadsdager) (3 uker forbeholdt mor før fødsel)   + 46 uker (230 stønadsdager)
        - Fedrekovte: 15 uker (75 stønadsdager)
@@ -282,7 +303,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -297,21 +318,21 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 230)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
-    Totale stønadskonto: - 59 uker (295 stønadsdager)
-    NB! Samtidig uttak skal være mulig 56 uker (280 stønadsdager)
+     Totale stønadskonto: - 59 uker (295 stønadsdager)
      Stønadskonto fordeler seg slik:
-    - Fellesperiode: 26 uker (130 stønadsdager) + 56 uker (280 stønadsdager)
-    - Fedrekovte: 15 uker (75 stønadsdager)
-    - Mødrekvote: 15 uker (75 stønadsdager)
-    - Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
+        - Fellesperiode: 20,2 uker (101 stønadsdager) + 57,6 uker (288 stønadsdager)
+        - Fedrekovte: 19 uker (95 stønadsdager)
+        - Mødrekvote: 19 uker (95 stønadsdager)
+        - Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
     */
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -321,27 +342,27 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(7)
-            .containsEntry(FELLESPERIODE, 90 + 280)
+            .containsEntry(FELLESPERIODE, 101 + 288)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(FLERBARNSDAGER, 280)
-            .containsEntry(TILLEGG_FLERBARN, 280)
+            .containsEntry(FLERBARNSDAGER, 288)
+            .containsEntry(TILLEGG_FLERBARN, 288)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306 + 288);
     }
 
     /*
-        Totale stønadskonto: - 56 uker (280 stønadsdager)
-        NB! Samtidig uttak skal være mulig 56 uker (280 stønadsdager)
+        Totale stønadskonto: - 58,2 uker (291 stønadsdager)
          Stønadskonto fordeler seg slik:
-        - Fellesperiode: 26 uker (130 stønadsdager) + 56 uker (280 stønadsdager)
-        - Fedrekovte: 15 uker (75 stønadsdager)
-        - Mødrekvote: 15 uker (75 stønadsdager)
+        - Fellesperiode: 20,2 uker (101 stønadsdager) + 57,4 uker (288 stønadsdager)
+        - Fedrekovte: 19 uker (95 stønadsdager)
+        - Mødrekvote: 19 uker (95 stønadsdager)
     */
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -351,16 +372,16 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(5)
-            .containsEntry(FELLESPERIODE, 90 + 280)
+            .containsEntry(FELLESPERIODE, 101 + 288)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
-            .containsEntry(FLERBARNSDAGER, 280)
-            .containsEntry(TILLEGG_FLERBARN, 280);
+            .containsEntry(FLERBARNSDAGER, 288)
+            .containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
         Totale stønadskonto:  - 49 uker  (245 stønadsdager)
-        NB! Samtidig uttak skal være mulig 17 uker (85 stønadsdager)
         Stønadskonto fordeler seg slik:
         - Fellesperiode: 16 uker (80 stønadsdager) + 17 uker (85 stønadsdager)
         - Fedrekovte: 15 uker (75 stønadsdager)
@@ -370,7 +391,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -387,11 +408,11 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 85)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
        Totale stønadskonto:  - 46 uker  (230 stønadsdager)
-       NB! Samtidig uttak skal være mulig 17 uker (85 stønadsdager)
        Stønadskonto fordeler seg slik:
        - Fellesperiode: 16 uker (80 stønadsdager) (3 uker forbeholdt mor før fødsel)   + 17 uker (85 stønadsdager)
        - Fedrekovte: 15 uker (75 stønadsdager)
@@ -400,7 +421,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -415,21 +436,21 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(MØDREKVOTE, 75)
             .containsEntry(FLERBARNSDAGER, 85)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
-    Totale stønadskonto: - 59 uker (295 stønadsdager)
-    NB! Samtidig uttak skal være mulig 21 uker (105 stønadsdager)
+    Totale stønadskonto: - 61,2 uker (306 stønadsdager)
      Stønadskonto fordeler seg slik:
-    - Fellesperiode: 26 uker (130 stønadsdager) + 21 uker (105 stønadsdager)
-    - Fedrekovte: 15 uker (75 stønadsdager)
-    - Mødrekvote: 15 uker (75 stønadsdager)
+    - Fellesperiode: 20,2 uker (101 stønadsdager) + 21,2 uker (106 stønadsdager)
+    - Fedrekovte: 19 uker (95 stønadsdager)
+    - Mødrekvote: 19 uker (95 stønadsdager)
     - Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
     */
     @Test
     void fødsel_begge_har_rett_og_omsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -439,27 +460,27 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(7)
-            .containsEntry(FELLESPERIODE, 90 + 105)
+            .containsEntry(FELLESPERIODE, 101 + 106)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
             .containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(FLERBARNSDAGER, 105)
-            .containsEntry(TILLEGG_FLERBARN, 105)
+            .containsEntry(FLERBARNSDAGER, 106)
+            .containsEntry(TILLEGG_FLERBARN, 106)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 306 + 106);
     }
 
     /*
-        Totale stønadskonto: - 56 uker (280 stønadsdager)
-        NB! Samtidig uttak skal være mulig 21 uker (105 stønadsdager)
+        Totale stønadskonto: - 58,2 uker (291 stønadsdager)
          Stønadskonto fordeler seg slik:
-        - Fellesperiode: 26 uker (130 stønadsdager) + 21 uker (105 stønadsdager)
-        - Fedrekovte: 15 uker (75 stønadsdager)
-        - Mødrekvote: 15 uker (75 stønadsdager)
+        - Fellesperiode: 20,2 uker (101 stønadsdager) + 21,2 uker (106 stønadsdager)
+        - Fedrekovte: 19 uker (95 stønadsdager)
+        - Mødrekvote: 19 uker (95 stønadsdager)
     */
     @Test
     void adopsjon_begge_har_rett_og_omsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -469,11 +490,12 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(5)
-            .containsEntry(FELLESPERIODE, 90 + 105)
+            .containsEntry(FELLESPERIODE, 101 + 106)
             .containsEntry(FEDREKVOTE, 95)
             .containsEntry(MØDREKVOTE, 95)
-            .containsEntry(FLERBARNSDAGER, 105)
-            .containsEntry(TILLEGG_FLERBARN, 105);
+            .containsEntry(FLERBARNSDAGER, 106)
+            .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 291 + 106);
     }
 
     /*
@@ -484,7 +506,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_mor_har_rett_begge_omsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -494,6 +516,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertSumDager(stønadskontoer, 245);
     }
 
     /*
@@ -503,7 +526,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_bare_mor_har_rett_og_aleneomsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -513,17 +536,18 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 80 + 75 + 75);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
         Bare mor har rett til foreldrepenger.
-        Foreldrepenger: 56 uker (280 stønadsdager)
+        Foreldrepenger: 58,2 uker (291 stønadsdager)
         Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
     */
     @Test
     void fødsel_bare_mor_har_rett_begge_omsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -532,17 +556,18 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15);
+        assertSumDager(stønadskontoer, 306);
     }
 
     /*
-    Bare mor har rett til foreldrepenger.
-    Foreldrepenger: 56 uker (280 stønadsdager)
+        Bare mor har rett til foreldrepenger.
+        Foreldrepenger: 58,2 uker (291 stønadsdager)
     */
     @Test
     void adopsjon_bare_mor_har_rett_og_aleneomsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -551,7 +576,8 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 130 + 75 + 75);
+        assertThat(stønadskontoer).hasSize(1).containsEntry(FORELDREPENGER, 291);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
@@ -562,7 +588,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_mor_rett_begge_omsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -573,6 +599,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 245 + 85);
     }
 
     /*
@@ -582,7 +609,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_bare_mor_rett_og_aleneomsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -593,17 +620,18 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75)
             .containsEntry(TILLEGG_FLERBARN, 85);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
-    Mor har aleneomsorg og rett til foreldrepenger. 2 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 21 uker (105 stønadsdager)
-    Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
-*/
+        Mor har aleneomsorg og rett til foreldrepenger. 2 barn
+        Foreldrepenger: 58,2 uker (291 stønadsdager) + 21,2 uker (106 stønadsdager)
+        Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
+    */
     @Test
     void fødsel_bare_mor_rett_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -612,18 +640,19 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(TILLEGG_FLERBARN, 105);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 106).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 306 + 106);
     }
 
     /*
-    Mor har aleneomsorg og rett til foreldrepenger. 2 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 21 uker (105 stønadsdager)
+        Mor har aleneomsorg og rett til foreldrepenger. 2 barn
+        Foreldrepenger: 8,2 uker (291 stønadsdager) + 21,2 uker (106 stønadsdager)
     */
     @Test
     void adopsjon_bare_mor_rett_og_aleneomsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -632,8 +661,9 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75)
-            .containsEntry(TILLEGG_FLERBARN, 105);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291 + 106)
+            .containsEntry(TILLEGG_FLERBARN, 106);
+        assertSumDager(stønadskontoer, 291 + 106);
     }
 
     /*
@@ -644,7 +674,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_mor_rett_begge_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -655,6 +685,7 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 245 + 230);
     }
 
     /*
@@ -664,7 +695,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void adopsjon_bare_mor_rett_og_aleneomsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -675,17 +706,18 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75)
             .containsEntry(TILLEGG_FLERBARN, 230);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
     Mor har aleneomsorg og rett til foreldrepenger. 3 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 56 uker (280 stønadsdager)
+    Foreldrepenger: 58,2 uker (291 stønadsdager) + 57,6 uker (288 stønadsdager)
     Foreldrepenger før fødsel: 3 uker (15 stønadsdager)
     */
     @Test
     void fødsel_bare_mor_rett_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -694,18 +726,19 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
-            .containsEntry(TILLEGG_FLERBARN, 280);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(FORELDREPENGER_FØR_FØDSEL, 15)
+            .containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 306 + 288);
     }
 
     /*
     Mor har aleneomsorg og rett til foreldrepenger. 3 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 56 uker (280 stønadsdager)
+    Foreldrepenger: 58,2 uker (291 stønadsdager) + 57,6 uker (288 stønadsdager)
     */
     @Test
     void adopsjon_bare_mor_rett_og_aleneomsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .omsorgsovertakelseDato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.MOR)
@@ -714,7 +747,8 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 280);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(TILLEGG_FLERBARN, 288);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
@@ -724,7 +758,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -734,16 +768,17 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 80 + 75 + 75).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230);
     }
 
     /*
     Far har aleneomsorg og rett til  Foreldrepenger
-    Foreldrepenger: 56 uker (280 stønadsdager)
+    Foreldrepenger: 58,2 uker (291 stønadsdager)
     */
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -752,7 +787,8 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 130 + 75 + 75).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 291).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291);
     }
 
     /*
@@ -762,7 +798,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -772,16 +808,17 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 230 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 230).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230 + 230);
     }
 
     /*
     Far har aleneomsorg og rett til Foreldrepenger. 3 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 56 uker (280 stønadsdager)
+    Foreldrepenger: 58,2 uker (291 stønadsdager) + 57,6 uker (288 stønadsdager)
     */
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -790,7 +827,8 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 280 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 280).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 288).containsEntry(TILLEGG_FLERBARN, 288).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291 + 288);
     }
 
     /*
@@ -800,7 +838,7 @@ class StønadskontoRegelOrkestreringTest {
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -810,16 +848,17 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 80 + 85 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 85).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 230 + 85);
     }
 
     /*
     Far har aleneomsorg og rett til Foreldrepenger. 2 barn
-    Foreldrepenger: 56 uker (280 stønadsdager) + 21 uker (105 stønadsdager)
+    Foreldrepenger: 58,2 uker (291 stønadsdager) + 21,2 uker (106 stønadsdager)
     */
     @Test
     void fødsel_bare_far_rett_og_aleneomsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.ALENEOMSORG)
             .brukerRolle(Brukerrolle.FAR)
@@ -828,17 +867,18 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 130 + 105 + 75 + 75).containsEntry(TILLEGG_FLERBARN, 105).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 291 + 106).containsEntry(TILLEGG_FLERBARN, 106).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 291 + 106);
     }
 
     /*
        Far har rett til Foreldrepenger. 100% dekningsgrad.
-       Foreldrepenger: 40 uker (200 stønadsdager)
+       Foreldrepenger: 40 uker (200 stønadsdager) med 10 uker minsterett
     */
     @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100() {
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -847,17 +887,18 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 50);
+        assertSumDager(stønadskontoer, 200);
     }
 
     /*
        Far har rett til Foreldrepenger. 80% dekningsgrad.
-       Foreldrepenger: 50 uker (250 stønadsdager)
+       Foreldrepenger: 52,2 uker (261 stønadsdager) med 10 uker minsterett
    */
     @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80() {
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -866,19 +907,20 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 75 + 75).containsEntry(BARE_FAR_RETT, 40).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertThat(stønadskontoer).hasSize(2).containsEntry(FORELDREPENGER, 261).containsEntry(BARE_FAR_RETT, 50);
+        assertSumDager(stønadskontoer, 261);
     }
 
     /*
        Far har rett til Foreldrepenger. 100% dekningsgrad. 3 barn.
        Foreldrepenger: 40 uker (200 stønadsdager) + 46 uker (230 stønadsdager)
        Flerbarnsdager: 46 uker (230 stønadsdager)
-
+       Minsterett: 10 uker
     */
     @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(FØR_WLB)
+            .omsorgsovertakelseDato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -887,13 +929,135 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75).containsEntry(FLERBARNSDAGER, 230).containsEntry(TILLEGG_FLERBARN, 230);
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 230 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 230)
+            .containsEntry(BARE_FAR_RETT, 230);
+        assertSumDager(stønadskontoer, 200 + 230);
     }
 
+    /*
+    Far har rett til Foreldrepenger. 80% dekningsgrad. 3 barn.
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 57,6 uker (288 stønadsdager)
+    Flerbarnsdager: 57,6 uker (288 stønadsdager)
+    Minsterett: 57,6 uker (288 stønadsdager)
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(3)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 261 + 288)
+            .containsEntry(TILLEGG_FLERBARN, 288)
+            .containsEntry(BARE_FAR_RETT, 288);
+        assertSumDager(stønadskontoer, 261 + 288);
+    }
+
+    /*
+   Far har rett til Foreldrepenger. 100% dekningsgrad. 2 barn.
+   Foreldrepenger: 40 uker (200 stønadsdager) + 17 uker (85 stønadsdager)
+   Minsterett: 17 uker (85 stønadsdager)
+*/
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(2)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
+            .containsEntry(TILLEGG_FLERBARN, 85)
+            .containsEntry(BARE_FAR_RETT, 85);
+        assertSumDager(stønadskontoer, 200 + 85);
+    }
+
+    /*
+    Far har rett til Foreldrepenger. 80% dekningsgrad. 2 barn.
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 21,2 uker (106 stønadsdager)
+    Minsterett: 21,2 uker (106 stønadsdager)
+    */
+    @Test
+    void adopsjon_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .omsorgsovertakelseDato(ETTER_WLB_2)
+            .antallBarn(2)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3)
+            .containsEntry(FORELDREPENGER, 261 + 106)
+            .containsEntry(TILLEGG_FLERBARN, 106)
+            .containsEntry(BARE_FAR_RETT, 106);
+        assertSumDager(stønadskontoer, 261 + 106);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 100% dekningsgrad.
+       Foreldrepenger: 40 uker (200 stønadsdager) med 10 uker minsterett
+    */
+    @Test
+    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .termindato(ETTER_WLB_2)
+            .antallBarn(1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 75 + 75).containsEntry(BARE_FAR_RETT, 50).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 80% dekningsgrad.
+       Foreldrepenger: 52,2 uker (261 stønadsdager) med 10 uker minsterett
+   */
+    @Test
+    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80() {
+        var grunnlag = BeregnKontoerGrunnlag.builder()
+            .fødselsdato(ETTER_WLB_2)
+            .antallBarn(1)
+            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
+            .brukerRolle(Brukerrolle.FAR)
+            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
+            .build();
+
+        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
+        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
+        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 261).containsEntry(BARE_FAR_RETT, 50).containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261);
+    }
+
+    /*
+       Far har rett til Foreldrepenger. 100% dekningsgrad. 3 barn.
+       Foreldrepenger: 40 uker (200 stønadsdager) + 46 uker (230 stønadsdager)
+       Flerbarnsdager: 46 uker (230 stønadsdager)
+       Minsterett: 10 uker
+    */
     @Test
     void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .termindato(DATO)
+            .termindato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -906,33 +1070,19 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 230)
             .containsEntry(BARE_FAR_RETT, 230)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200 + 230);
     }
 
     /*
     Far har rett til Foreldrepenger. 80% dekningsgrad. 3 barn.
-    Foreldrepenger: 50 uker (250 stønadsdager) + 56 uker (280 stønadsdager)
-    Flerbarnsdager: 56 uker (280 stønadsdager)
-
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 57,6 uker (288 stønadsdager)
+    Flerbarnsdager: 57,6 uker (288 stønadsdager)
+    Minsterett: 57,6 uker (288 stønadsdager)
     */
-    @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(FØR_WLB)
-            .antallBarn(3)
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75).containsEntry(FLERBARNSDAGER, 280).containsEntry(TILLEGG_FLERBARN, 280);
-    }
-
     @Test
     void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_3_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(3)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -942,38 +1092,22 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(4)
-            .containsEntry(FORELDREPENGER, 100 + 280 + 75 + 75)
-            .containsEntry(TILLEGG_FLERBARN, 280)
-            .containsEntry(BARE_FAR_RETT, 280)
+            .containsEntry(FORELDREPENGER, 261 + 288)
+            .containsEntry(TILLEGG_FLERBARN, 288)
+            .containsEntry(BARE_FAR_RETT, 288)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261 + 288);
     }
 
     /*
-       Far har rett til Foreldrepenger. 100% dekningsgrad. 2 barn.
-       Foreldrepenger: 40 uker (200 stønadsdager) + 17 uker (85 stønadsdager)
-       Flerbarnsdager: 17 uker (85 stønadsdager)
-    */
-    @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(FØR_WLB)
-            .antallBarn(2)
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 50 + 85 + 75 + 75)
-            .containsEntry(FLERBARNSDAGER, 85)
-            .containsEntry(TILLEGG_FLERBARN, 85);
-    }
-
+   Far har rett til Foreldrepenger. 100% dekningsgrad. 2 barn.
+   Foreldrepenger: 40 uker (200 stønadsdager) + 17 uker (85 stønadsdager)
+   Minsterett: 17 uker (85 stønadsdager)
+*/
     @Test
     void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_100_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -987,33 +1121,18 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(TILLEGG_FLERBARN, 85)
             .containsEntry(BARE_FAR_RETT, 85)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 200 + 85);
     }
 
     /*
     Far har rett til Foreldrepenger. 80% dekningsgrad. 2 barn.
-    Foreldrepenger: 50 uker (250 stønadsdager) + 21 uker (105 stønadsdager)
-    Flerbarnsdager: 21 uker (105 stønadsdager)
-
+    Foreldrepenger: 52,2 uker (261 stønadsdager) + 21,2 uker (106 stønadsdager)
+    Minsterett: 21,2 uker (106 stønadsdager)
     */
-    @Test
-    void fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(FØR_WLB)
-            .antallBarn(2)
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).hasSize(3).containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75).containsEntry(FLERBARNSDAGER, 105).containsEntry(TILLEGG_FLERBARN, 105);
-    }
-
     @Test
     void wlb_fødsel_bare_far_rett_begge_omsorg_dekningsgrad_80_2_barn() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -1023,17 +1142,18 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).hasSize(4)
-            .containsEntry(FORELDREPENGER, 100 + 105 + 75 + 75)
-            .containsEntry(TILLEGG_FLERBARN, 105)
-            .containsEntry(BARE_FAR_RETT, 105)
+            .containsEntry(FORELDREPENGER, 261 + 106)
+            .containsEntry(TILLEGG_FLERBARN, 106)
+            .containsEntry(BARE_FAR_RETT, 106)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
+        assertSumDager(stønadskontoer, 261 + 106);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     void bergegn_kontoer_regel_skal_produsere_sporing_med_json() throws IOException {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
             .rettighetType(Rettighetstype.BEGGE_RETT)
             .brukerRolle(Brukerrolle.MOR)
@@ -1050,10 +1170,10 @@ class StønadskontoRegelOrkestreringTest {
         assertThat(input.getDekningsgrad()).isEqualTo(Dekningsgrad.DEKNINGSGRAD_100);
         assertThat(input.getAntallBarn()).isEqualTo(1);
         assertThat(input.erFødsel()).isTrue();
-        assertThat(input.getFamilieHendelseDato()).isEqualTo(DATO);
+        assertThat(input.getFamilieHendelseDato()).isEqualTo(ETTER_WLB_2);
         assertThat(input.getFødselsdato()).isPresent();
         assertThat(input.getTidligereUtregning()).isEmpty();
-        assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(DATO);
+        assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(ETTER_WLB_2);
 
         assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.version());
 
@@ -1073,28 +1193,14 @@ class StønadskontoRegelOrkestreringTest {
             .build();
 
         assertThatCode(() -> stønadskontoRegelOrkestrering.beregnKontoer(grunnlag)).doesNotThrowAnyException();
+        var stønadskontoer = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag).getStønadskontoer();
+        assertThat(stønadskontoer).containsEntry(FELLESPERIODE, 80);
     }
-
-    @Test
-    void bfhr_flere_barn_ikke_minsterett_skal_gi_flerbarnsdager() {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(FØR_WLB)
-            .antallBarn(2)
-            .rettighetType(Rettighetstype.BARE_SØKER_RETT)
-            .brukerRolle(Brukerrolle.FAR)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-        var stønadskontoer = stønadskontoResultat.getStønadskontoer();
-        assertThat(stønadskontoer).containsKey(FLERBARNSDAGER);
-    }
-
 
     @Test
     void bfhr_flere_barn_minsterett_skal_ikke_gi_flerbarnsdager() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(DATO)
+            .fødselsdato(ETTER_WLB_2)
             .antallBarn(2)
             .rettighetType(Rettighetstype.BARE_SØKER_RETT)
             .brukerRolle(Brukerrolle.FAR)
@@ -1105,6 +1211,14 @@ class StønadskontoRegelOrkestreringTest {
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         var stønadskontoer = stønadskontoResultat.getStønadskontoer();
         assertThat(stønadskontoer).doesNotContainKey(FLERBARNSDAGER);
+    }
+
+    static void assertSumDager(Map<StønadskontoKontotype, Integer> utregning, int dager) {
+        var utregnetsum = utregning.entrySet().stream()
+            .filter(e -> e.getKey().erStønadsdager())
+            .map(Map.Entry::getValue)
+            .reduce(Integer::sum).orElse(0);
+        assertThat(utregnetsum).isEqualTo(dager);
     }
 
 }
