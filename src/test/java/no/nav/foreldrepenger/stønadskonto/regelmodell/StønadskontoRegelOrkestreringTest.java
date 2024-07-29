@@ -1175,7 +1175,7 @@ class StønadskontoRegelOrkestreringTest {
         assertThat(input.getTidligereUtregning()).isEmpty();
         assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(ETTER_WLB_2);
 
-        assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.version());
+        assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.nameAndVersion());
 
         assertThat(mapper.readValue(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
     }
