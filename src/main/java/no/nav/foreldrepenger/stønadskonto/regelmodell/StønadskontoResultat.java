@@ -21,7 +21,7 @@ public class StønadskontoResultat {
         this.stønadskontoer.putAll(stønadskontoer);
         this.evalueringResultat = evalueringResultat;
         this.innsendtGrunnlag = innsendtGrunnlag;
-        this.regelVersjon = StønadskontoVersion.STØNADSKONTO_VERSION.version();
+        this.regelVersjon = StønadskontoVersion.STØNADSKONTO_VERSION.nameAndVersion();
     }
 
     public Map<StønadskontoKontotype, Integer> getStønadskontoer() {
