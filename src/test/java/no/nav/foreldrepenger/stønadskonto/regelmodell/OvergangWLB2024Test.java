@@ -1,30 +1,25 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
-import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
-
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Map;
-
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.BARE_FAR_RETT;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FAR_RUNDT_FØDSEL;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FEDREKVOTE;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FELLESPERIODE;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FLERBARNSDAGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FORELDREPENGER;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.MØDREKVOTE;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TETTE_SAKER_FAR;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TETTE_SAKER_MOR;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TILLEGG_FLERBARN;
 import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.TILLEGG_PREMATUR;
-import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype.UFØREDAGER;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.Month;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
+import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 
 class OvergangWLB2024Test {
 
@@ -41,7 +36,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FELLESPERIODE, 90)
@@ -52,7 +46,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -71,7 +64,6 @@ class OvergangWLB2024Test {
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .antallBarn(2)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FELLESPERIODE, 90 + 105)
@@ -85,7 +77,6 @@ class OvergangWLB2024Test {
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
             .antallBarn(2)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -105,7 +96,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2.plusWeeks(10))
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FELLESPERIODE, 90)
@@ -117,7 +107,6 @@ class OvergangWLB2024Test {
             .fødselsdato(ETTER_WLB_2)
             .termindato(ETTER_WLB_2.plusWeeks(10))
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -136,7 +125,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.MOR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
@@ -146,7 +134,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.MOR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -163,7 +150,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.MOR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
@@ -173,7 +159,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.MOR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -189,7 +174,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 250)
@@ -200,7 +184,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -219,7 +202,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 280)
@@ -229,7 +211,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -247,7 +228,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .morHarUføretrygd(true)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
@@ -259,7 +239,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .morHarUføretrygd(true)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
@@ -279,7 +258,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .antallBarn(2)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
@@ -291,7 +269,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .antallBarn(2)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
@@ -311,7 +288,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(Map.of())
             .antallBarn(3)
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
@@ -323,7 +299,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_80)
-            .tidligereUtregning(utregnet)
             .antallBarn(3)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
@@ -344,7 +319,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
@@ -355,7 +329,6 @@ class OvergangWLB2024Test {
             .brukerRolle(Brukerrolle.FAR)
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();
@@ -376,7 +349,6 @@ class OvergangWLB2024Test {
             .termindato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .morHarUføretrygd(true)
-            .tidligereUtregning(Map.of())
             .build();
         var utregnet = stønadskontoRegelOrkestrering.beregnKontoer(tidligere).getStønadskontoer();
         assertThat(utregnet).containsEntry(FORELDREPENGER, 200)
@@ -388,7 +360,6 @@ class OvergangWLB2024Test {
             .fødselsdato(ETTER_WLB_2)
             .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
             .morHarUføretrygd(true)
-            .tidligereUtregning(utregnet)
             .build();
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
         utregnet = stønadskontoResultat.getStønadskontoer();

@@ -11,8 +11,6 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
 @RuleDocumentation(FerdigBeregnetKontoer.ID)
 class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
 
-    private static final String KONTOER = "KONTOER";
-
     static final String ID = "FP_VK 17.5";
     private static final String DESC = "Fastsett beregning";
 
@@ -23,13 +21,7 @@ class FerdigBeregnetKontoer extends LeafSpecification<KontoerMellomregning> {
     @Override
     public Evaluation evaluate(KontoerMellomregning mellomregning) {
         fjernInnslag0(mellomregning.getBeregnet());
-        fjernInnslag0(mellomregning.getFlettet());
-
-        var sporing = mellomregning.getFlettet().isEmpty() ? mellomregning.getBeregnet() : mellomregning.getFlettet();
-
-        var eval = ja();
-        eval.setEvaluationProperty(KONTOER, sporing);
-        return eval;
+        return ja();
 
     }
 

@@ -13,17 +13,11 @@ import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKonto
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
@@ -1147,37 +1141,6 @@ class StønadskontoRegelOrkestreringTest {
             .containsEntry(BARE_FAR_RETT, 106)
             .containsEntry(FAR_RUNDT_FØDSEL, 10);
         assertSumDager(stønadskontoer, 261 + 106);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void bergegn_kontoer_regel_skal_produsere_sporing_med_json() throws IOException {
-        var grunnlag = BeregnKontoerGrunnlag.builder()
-            .fødselsdato(ETTER_WLB_2)
-            .antallBarn(1)
-            .rettighetType(Rettighetstype.BEGGE_RETT)
-            .brukerRolle(Brukerrolle.MOR)
-            .dekningsgrad(Dekningsgrad.DEKNINGSGRAD_100)
-            .build();
-
-        var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
-
-        var mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        var input = mapper.readValue(stønadskontoResultat.getInnsendtGrunnlag(), BeregnKontoerGrunnlag.class);
-        assertThat(input.getRettighetstype()).isEqualTo(Rettighetstype.BEGGE_RETT);
-        assertThat(input.getDekningsgrad()).isEqualTo(Dekningsgrad.DEKNINGSGRAD_100);
-        assertThat(input.getAntallBarn()).isEqualTo(1);
-        assertThat(input.erFødsel()).isTrue();
-        assertThat(input.getFamilieHendelseDato()).isEqualTo(ETTER_WLB_2);
-        assertThat(input.getFødselsdato()).isPresent();
-        assertThat(input.getTidligereUtregning()).isEmpty();
-        assertThat(input.getKonfigurasjonsvalgdato()).isEqualTo(ETTER_WLB_2);
-
-        assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.nameAndVersion());
-
-        assertThat(mapper.readValue(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
     }
 
     @Test

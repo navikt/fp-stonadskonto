@@ -18,8 +18,6 @@ public class KontoerMellomregning {
 
     private final Map<StønadskontoKontotype, Integer> beregnet = new EnumMap<>(StønadskontoKontotype.class);
 
-    private final Map<StønadskontoKontotype, Integer> flettet = new EnumMap<>(StønadskontoKontotype.class);
-
     public KontoerMellomregning(BeregnKontoerGrunnlag grunnlag) {
         this.grunnlag = grunnlag;
     }
@@ -34,10 +32,6 @@ public class KontoerMellomregning {
 
     public Map<StønadskontoKontotype, Integer> getBeregnet() {
         return beregnet;
-    }
-
-    public Map<StønadskontoKontotype, Integer> getFlettet() {
-        return flettet;
     }
 
 }

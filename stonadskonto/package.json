@@ -1,0 +1,20 @@
+{
+  "name": "stonadskonto",
+  "version": "1.0.0",
+  "description": "Stønadskonto beregningsregler for foreldrepenger",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.5"
+  }
+}

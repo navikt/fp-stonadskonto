@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag;
 
 import java.time.LocalDate;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKontotype;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
@@ -22,7 +19,6 @@ public class BeregnKontoerGrunnlag {
      *
      * Parameter regelvalgsdato settes kun når man ønsker å "overstyre" familiehendelsedato for regelvalg og kan brukes i utviklingsmiljø + produksjon fram til ikrafttredelse.
      */
-    private final Map<StønadskontoKontotype, Integer> tidligereUtregning = new EnumMap<>(StønadskontoKontotype.class);
 
     private LocalDate regelvalgsdato;
     private Dekningsgrad dekningsgrad;
@@ -60,10 +56,6 @@ public class BeregnKontoerGrunnlag {
 
     public Dekningsgrad getDekningsgrad() {
         return dekningsgrad;
-    }
-
-    public Map<StønadskontoKontotype, Integer> getTidligereUtregning() {
-        return tidligereUtregning;
     }
 
     public Rettighetstype getRettighetstype() {
@@ -131,11 +123,6 @@ public class BeregnKontoerGrunnlag {
 
         public Builder regelvalgsdato(LocalDate regelvalgsdato) {
             kladd.regelvalgsdato = regelvalgsdato;
-            return this;
-        }
-
-        public Builder tidligereUtregning(Map<StønadskontoKontotype, Integer> tidligereUtregnet) {
-            kladd.tidligereUtregning.putAll(tidligereUtregnet);
             return this;
         }
 

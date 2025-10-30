@@ -1,0 +1,32 @@
+export enum StønadskontoKontotype {
+  FELLESPERIODE = 'FELLESPERIODE',
+  MØDREKVOTE = 'MØDREKVOTE',
+  FEDREKVOTE = 'FEDREKVOTE',
+  FORELDREPENGER = 'FORELDREPENGER',
+  FORELDREPENGER_FØR_FØDSEL = 'FORELDREPENGER_FØR_FØDSEL',
+
+  TILLEGG_FLERBARN = 'TILLEGG_FLERBARN',
+  TILLEGG_PREMATUR = 'TILLEGG_PREMATUR',
+
+  FLERBARNSDAGER = 'FLERBARNSDAGER',
+  UFØREDAGER = 'UFØREDAGER',
+
+  TETTE_SAKER_MOR = 'TETTE_SAKER_MOR',
+  TETTE_SAKER_FAR = 'TETTE_SAKER_FAR',
+  BARE_FAR_RETT = 'BARE_FAR_RETT',
+
+  FAR_RUNDT_FØDSEL = 'FAR_RUNDT_FØDSEL',
+}
+
+const STØNADSDAGER = new Set([
+  StønadskontoKontotype.FELLESPERIODE,
+  StønadskontoKontotype.FEDREKVOTE,
+  StønadskontoKontotype.MØDREKVOTE,
+  StønadskontoKontotype.FORELDREPENGER,
+  StønadskontoKontotype.FORELDREPENGER_FØR_FØDSEL,
+]);
+
+export function erStønadsdager(konto: StønadskontoKontotype): boolean {
+  return STØNADSDAGER.has(konto);
+}
+

@@ -1,0 +1,5 @@
+export enum Dekningsgrad {
+  DEKNINGSGRAD_100 = 'DEKNINGSGRAD_100',
+  DEKNINGSGRAD_80 = 'DEKNINGSGRAD_80',
+}
+
