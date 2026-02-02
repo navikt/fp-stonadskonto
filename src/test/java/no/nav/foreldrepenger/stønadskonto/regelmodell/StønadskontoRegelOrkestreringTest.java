@@ -13,7 +13,6 @@ import static no.nav.foreldrepenger.stønadskonto.regelmodell.StønadskontoKonto
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.HashMap;
@@ -21,15 +20,12 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.BeregnKontoerGrunnlag;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Brukerrolle;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.Rettighetstype;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.rettighet.PrematurukerUtil;
+import no.nav.fpsak.nare.json.JsonOutput;
 
 
 /**
@@ -1151,7 +1147,7 @@ class StønadskontoRegelOrkestreringTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void bergegn_kontoer_regel_skal_produsere_sporing_med_json() throws IOException {
+    void bergegn_kontoer_regel_skal_produsere_sporing_med_json() {
         var grunnlag = BeregnKontoerGrunnlag.builder()
             .fødselsdato(ETTER_WLB_2)
             .antallBarn(1)
@@ -1162,10 +1158,7 @@ class StønadskontoRegelOrkestreringTest {
 
         var stønadskontoResultat = stønadskontoRegelOrkestrering.beregnKontoer(grunnlag);
 
-        var mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        var input = mapper.readValue(stønadskontoResultat.getInnsendtGrunnlag(), BeregnKontoerGrunnlag.class);
+        var input = JsonOutput.fromJson(stønadskontoResultat.getInnsendtGrunnlag(), BeregnKontoerGrunnlag.class);
         assertThat(input.getRettighetstype()).isEqualTo(Rettighetstype.BEGGE_RETT);
         assertThat(input.getDekningsgrad()).isEqualTo(Dekningsgrad.DEKNINGSGRAD_100);
         assertThat(input.getAntallBarn()).isEqualTo(1);
@@ -1177,7 +1170,7 @@ class StønadskontoRegelOrkestreringTest {
 
         assertThat(stønadskontoResultat.getRegelVersjon()).isEqualTo(StønadskontoVersion.STØNADSKONTO_VERSION.nameAndVersion());
 
-        assertThat(mapper.readValue(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
+        assertThat(JsonOutput.fromJson(stønadskontoResultat.getEvalueringResultat(), HashMap.class)).isNotNull().isNotEmpty();
     }
 
     @Test
