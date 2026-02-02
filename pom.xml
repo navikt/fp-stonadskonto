@@ -18,7 +18,7 @@
     <url>https://github.com/navikt/fp-stonadskonto</url>
 
     <properties>
-        <fpsak.nare.version>2.6.3</fpsak.nare.version>
+        <fpsak.nare.version>2.6.4</fpsak.nare.version>
         <fp-tidsserie.version>2.7.3</fp-tidsserie.version>
 
         <!-- Sonar felles -->
