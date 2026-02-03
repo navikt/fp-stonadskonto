@@ -2,30 +2,14 @@ package no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import no.nav.fpsak.nare.json.JsonOutput;
 
 class LegacyGrunnlagTest {
-
-    private static final ObjectMapper OM = new ObjectMapper();
-    static {
-        OM.registerModule(new JavaTimeModule());
-        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
-    }
 
     private static final String V2022 = """
         {
@@ -46,8 +30,8 @@ class LegacyGrunnlagTest {
         """;
 
     @Test
-    void skal_lese_wlb_grunnlag() throws IOException {
-        var input = OM.readValue(V2022, LegacyGrunnlagV1.class);
+    void skal_lese_wlb_grunnlag() {
+        var input = JsonOutput.fromJson(V2022, LegacyGrunnlagV1.class);
         assertThat(input.isMorRett()).isTrue();
         assertThat(input.isFarRett()).isTrue();
         assertThat(input.isFarAleneomsorg()).isFalse();
@@ -75,8 +59,8 @@ class LegacyGrunnlagTest {
         """;
 
     @Test
-    void skal_lese_2019_grunnlag() throws IOException {
-        var input = OM.readValue(V2019, LegacyGrunnlagV1.class);
+    void skal_lese_2019_grunnlag() {
+        var input = JsonOutput.fromJson(V2019, LegacyGrunnlagV1.class);
         assertThat(input.isMorRett()).isTrue();
         assertThat(input.isFarRett()).isTrue();
         assertThat(input.isFarAleneomsorg()).isFalse();
@@ -104,9 +88,9 @@ class LegacyGrunnlagTest {
         """;
 
     @Test
-    void skal_lese_2018_grunnlag() throws IOException {
+    void skal_lese_2018_grunnlag() {
 
-        var input = OM.readValue(V2018, LegacyGrunnlagV0.class);
+        var input = JsonOutput.fromJson(V2018, LegacyGrunnlagV0.class);
         assertThat(input.isMorRett()).isTrue();
         assertThat(input.isFarRett()).isTrue();
         assertThat(input.isFarAleneomsorg()).isFalse();
