@@ -1,6 +1,6 @@
 # fp-stonadskonto
 
-Business-rule library for stonadskonto and minsterett calculation.
+Business-rule library for stonadskonto and minsterett calculation in relation to Folketrygdloven 14-9 through 14-16.
 
 ## Shared context
 
@@ -9,12 +9,12 @@ Business-rule library for stonadskonto and minsterett calculation.
 
 ## Repo-specific context
 
-| Topic     | Details                                                                    |
-|-----------|----------------------------------------------------------------------------|
-| Role      | Calculates benefit quotas and related rights for foreldrepenger flows      |
-| Consumers | `fp-sak` (uttak-flow), `fp-grunndata` (for self-service apps)              |
-| Tech stack  | Java, `fp-nare` rule framework                                             |
-| Structure | Single SemVer library with `regelmodell/` and public API in `grensesnitt/` |
+| Topic      | Details                                                               |
+|------------|-----------------------------------------------------------------------|
+| Role       | Calculates benefit quotas and related rights for foreldrepenger flows |
+| Consumers  | `fp-sak` (uttak flow), `fp-grunndata` (for self-service apps)         |
+| Tech stack | Java, `fp-nare` rule framework                                        |
+| Structure  | Single SemVer library with ` public API in `grensesnitt/`             |
 
 Pure stateless calculation based on input data.
 
