@@ -16,7 +16,7 @@ Business-rule library for stonadskonto and minsterett calculation in relation to
 | Tech stack | Java, `fp-nare` rule framework                                        |
 | Structure  | Single SemVer library with ` public API in `grensesnitt/`             |
 
-Pure stateless calculation based on input data.
+Pure stateless calculation based on input data. Contains historical quotas: selection based on dekningsgrad and familieHendelseDato
 
 ## Verification
 
